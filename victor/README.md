@@ -1,112 +1,92 @@
-
-# Propuesta de Aplicación – Victor
+# Aplicación de Gestión de Trabajos Colaborativos – Desarrollo Móvil
 
 ## 1. Descripción General
 
-En la materia Desarrollo Móvil es frecuente la realización de proyectos grupales donde cada integrante debe aportar en el diseño, desarrollo e implementación de una aplicación. Sin embargo, uno de los principales problemas en este tipo de trabajos es la dificultad para medir la participación individual, organizar tareas técnicas y realizar una evaluación justa.
+En la asignatura **Desarrollo Móvil**, los proyectos grupales son una parte clave del aprendizaje. Sin embargo, suelen aparecer problemas como:
+- Mala organización del equipo.
+- Falta de control sobre quién hace qué.
+- Dificultad para evaluar la participación individual.
 
-La presente propuesta plantea el desarrollo de una aplicación orientada a la gestión inteligente de trabajos colaborativos en asignaturas técnicas, especialmente en Desarrollo Móvil. La aplicación permitirá organizar equipos, distribuir tareas, hacer seguimiento del progreso individual y facilitar la evaluación docente basada en métricas objetivas.
-
-El objetivo principal es mejorar la transparencia, la organización y la equidad en los proyectos grupales universitarios.
-
----
-
-## 2. Referentes Analizados
-
-### 2.1 Google Classroom
-
-Google Classroom permite a los docentes asignar actividades, recibir entregas y publicar calificaciones. Es ampliamente utilizado en entornos académicos.
-
-Fortalezas:
-- Interfaz sencilla.
-- Gestión clara de tareas y fechas límite.
-- Integración con Google Drive.
-
-Debilidades:
-- No permite medir participación individual dentro de trabajos grupales.
-- No está orientado a proyectos técnicos con control de avances detallado.
+Esta aplicación móvil permite que los docentes publiquen proyectos, que los estudiantes los vean, registren sus grupos y gestionen las tareas internas. La idea es simplificar la gestión de proyectos y hacer más transparente la evaluación.
 
 ---
 
-### 2.2 Trello
+## 2. Herramientas Analizadas
 
-Trello es una herramienta de gestión de proyectos basada en tableros Kanban.
+### Google Classroom
+- **Fortalezas:**
+  - Publicación de trabajos y fechas de entrega.
+  - Interfaz sencilla.
+  - Centraliza la información.
+- **Debilidades:**
+  - No permite seguimiento interno de grupos.
+  - No organiza tareas dentro de un proyecto.
 
-Fortalezas:
-- Organización visual clara.
-- Permite asignar tareas a miembros específicos.
-- Seguimiento del progreso por etapas.
+### Trello
+- **Fortalezas:**
+  - Organización visual mediante tableros.
+  - División de tareas entre miembros.
+  - Seguimiento de avances.
+- **Debilidades:**
+  - No está orientado a contexto académico.
+  - No tiene control docente ni relación con calificaciones.
 
-Debilidades:
-- No está adaptado al contexto académico.
-- No incluye herramientas de evaluación ni métricas docentes.
+### Microsoft Teams
+- **Fortalezas:**
+  - Comunicación integrada entre estudiantes y docentes.
+  - Integración con archivos y herramientas externas.
+- **Debilidades:**
+  - No enfocado en gestión de proyectos académicos.
+  - No registra avances individuales de los grupos.
 
 ---
 
-### 2.3 Microsoft Teams
+## 3. Arquitectura
 
-Microsoft Teams permite comunicación, trabajo colaborativo y gestión de archivos.
+La aplicación se compone de:
 
-Fortalezas:
-- Comunicación integrada.
-- Espacios de trabajo por equipos.
-- Integración con herramientas externas.
+- **App móvil:** para estudiantes y docentes (con funciones según rol).
+- **Servidor con base de datos:** almacena proyectos, grupos, tareas y avances.
 
-Debilidades:
-- Enfocado más en comunicación que en evaluación académica.
-- No proporciona análisis detallado de desempeño individual en proyectos técnicos.
+Este diseño mantiene todo centralizado, sencillo de desarrollar y fácil de mantener en un contexto universitario.
 
 ---
-
-## 3. Arquitectura Propuesta
-
-Se propone una arquitectura sencilla compuesta por:
-
-- Una aplicación móvil principal.
-- Un servidor con base de datos centralizada.
-
-Justificación:
-
-La aplicación móvil será utilizada tanto por estudiantes como por docentes, pero con diferentes permisos según el rol. De esta manera, se evita desarrollar múltiples plataformas y se simplifica el mantenimiento del sistema.
-
-El servidor se encargará de almacenar la información relacionada con los proyectos, tareas, avances y calificaciones. Toda la información estará centralizada en una base de datos que permitirá consultar el historial de participación de cada estudiante.
-
-Este enfoque es adecuado para un entorno universitario, ya que mantiene la solución simple, funcional y fácil de implementar dentro del contexto de la materia Desarrollo Móvil, sin añadir complejidad innecesaria.
-
 
 ## 4. Flujo Funcional
 
-1. El docente crea una actividad grupal dentro de la aplicación.
-2. Publica la descripción del proyecto, los objetivos y la fecha de entrega.
-3. Los estudiantes se registran en la actividad y conforman los equipos.
-4. Cada equipo divide el proyecto en tareas internas dentro de la app.
-5. Los integrantes marcan el estado de sus tareas (pendiente, en proceso, finalizada).
-6. Los estudiantes pueden subir evidencias como capturas, enlaces al repositorio o comentarios técnicos.
-7. La aplicación registra automáticamente quién realizó cada actualización.
-8. Al finalizar el proyecto, el docente revisa el historial de actividad del grupo.
-9. Se asigna la calificación teniendo en cuenta tanto el resultado final como la participación registrada.
-10. Los estudiantes reciben la nota junto con una breve retroalimentación visible en la aplicación.
+1. El docente crea un proyecto en la aplicación.
+2. Publica la descripción y fecha de entrega.
+3. Los estudiantes ven los proyectos disponibles.
+4. Los estudiantes crean o se unen a un grupo.
+5. Cada grupo divide el proyecto en tareas.
+6. Los integrantes actualizan el estado de sus tareas.
+7. Se pueden agregar comentarios o evidencias.
+8. El docente revisa el avance de cada grupo.
+9. Al finalizar, el docente evalúa el proyecto.
 
+---
 
-## 5. Justificación de la Propuesta
+## 5. Justificación
 
-En la materia Desarrollo Móvil, los proyectos grupales son una parte fundamental del aprendizaje. Sin embargo, en muchas ocasiones la evaluación se centra únicamente en el producto final, sin tener en cuenta cómo fue el proceso de trabajo ni el nivel de participación de cada integrante.
+Muchos proyectos se organizan usando varias herramientas externas, lo que genera desorden. La evaluación suele centrarse solo en el resultado final.  
 
-Esta propuesta surge como respuesta a esa necesidad. Más que una herramienta de organización, la aplicación busca apoyar al docente en el seguimiento del proceso y brindar mayor claridad sobre el aporte individual dentro del equipo.
+Esta app permite:
 
-A diferencia de herramientas generales como Google Classroom o Trello, esta solución está pensada específicamente para proyectos técnicos universitarios, donde es importante registrar avances, evidencias y participación continua.
+- Publicar proyectos.
+- Registrar grupos.
+- Organizar tareas.
+- Visualizar avances y participación.
 
-El objetivo no es reemplazar plataformas existentes, sino complementar el proceso académico con una herramienta enfocada en la transparencia, la responsabilidad individual y una evaluación más justa.
+Así, se mejora la **transparencia**, la **responsabilidad individual** y la **evaluación justa**.
+
+---
 
 ## 6. Prototipo
 
-El prototipo fue diseñado en Figma con el objetivo de representar el flujo principal de la aplicación y las funcionalidades básicas para docentes y estudiantes.
+El prototipo fue diseñado en **Figma**, mostrando el flujo básico y las funciones principales para docentes y estudiantes.  
 
-Prototipo en Figma:
-(Aquí debes pegar el enlace)
+**Enlace al prototipo:**  
+[Prototipo en Figma](https://www.figma.com/design/JjmbEb3wWiwASTTv9pSytb/EDU-educational-application-ui-kit--FREE---Community-?node-id=0-1&t=Ii7L1A36TLjHe49J-1)
 
-Capturas principales del prototipo:
-
-https://www.figma.com/design/JjmbEb3wWiwASTTv9pSytb/EDU-educational-application-ui-kit--FREE---Community-?node-id=0-1&t=Ii7L1A36TLjHe49J-1
-el prototipo es muy simple para la idea se puede desarrollar de la mejor manera posible
+El diseño es simple, centrado en la gestión de proyectos, grupos y tareas.
 
