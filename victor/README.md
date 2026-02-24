@@ -88,5 +88,5 @@ El prototipo fue diseñado en **Figma**, mostrando el flujo básico y las funcio
 **Enlace al prototipo:**  
 [Prototipo en Figma](https://www.figma.com/design/JjmbEb3wWiwASTTv9pSytb/EDU-educational-application-ui-kit--FREE---Community-?node-id=0-1&t=Ii7L1A36TLjHe49J-1)
 
-El diseño es simple, centrado en la gestión de proyectos, grupos y tareas.
+El diseño es simple, centrado en la gestión de proyecto, trabajos entre estudiantes y profesores.
 
