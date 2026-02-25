@@ -2,6 +2,7 @@
 # Propuesta de Proyecto: Verónica Ospina Monsalve
 ## Peer Assessment App – Evaluación Colaborativa en Grupos
 Figma: https://www.figma.com/design/N6kajiJicDVZDNC8lQWPrG/PeerAssess---Prototipo-App-Evaluacion-Colaborativa?node-id=0-1&t=XqA6N9jAGDJbAaz7-1
+
 Prototipo: https://www.figma.com/proto/N6kajiJicDVZDNC8lQWPrG/PeerAssess---Prototipo-App-Evaluacion-Colaborativa?node-id=0-1&t=QYV8tAk726wk74yV-1
 
 Fotos:
