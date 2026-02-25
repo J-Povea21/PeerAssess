@@ -249,4 +249,10 @@ La evaluación "en clase, durante una sesión" no está contemplada por ningún 
 Todos los referentes utilizan una sola interfaz con vistas diferenciadas por rol. Separar la app en dos proyectos independientes añade complejidad sin beneficio para el usuario final.
 
 ## 5. Link de Figma
-Adjunto el link de mi diseño en [Figma](https://www.figma.com/design/qw2PVTcbw4QfORtGOguKJ9/Groupie-%E2%80%94-UI-Mockups?node-id=0-1&t=6x8zcqcvHaZ0iITt-1)
+Adjunto el link de mi diseño en [Figma](https://www.figma.com/design/qw2PVTcbw4QfORtGOguKJ9/Groupie-%E2%80%94-UI-Mockups?node-id=0-1&t=6x8zcqcvHaZ0iITt-1) junto a algunas capturas de pantalla del diseño
+
+![Join course](join-course.png)
+![Teacher dashboard](teacher-dashboard.png)
+![Course Detail](course-detail.png)
+![Create Assessment](create-assessment.png)
+![Evaluation Form](evaluation-form.png)
