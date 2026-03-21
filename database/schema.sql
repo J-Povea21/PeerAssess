@@ -13,12 +13,11 @@ CREATE TABLE courses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (teacher_id) REFERENCES users(id)
 );
-
-CREATE TABLE group_categories (
+CREATE TABLE groups (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    course_id INTEGER,
-    FOREIGN KEY (course_id) REFERENCES courses(id)
+    category_id INTEGER NOT NULL,
+    name VARCHAR(100),
+    FOREIGN KEY (category_id) REFERENCES group_categories(id)
 );
 
 CREATE TABLE group_categories (
