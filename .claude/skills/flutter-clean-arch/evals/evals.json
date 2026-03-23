@@ -1,0 +1,23 @@
+{
+  "skill_name": "flutter-clean-arch",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need to create a new module for PeerAssess called Evaluation. It should have fields: id (String?), title (String), description (String), score (double), and evaluatorId (String). I need all CRUD operations, starting with both local and remote data sources.",
+      "expected_output": "Should present an implementation plan first with the correct folder structure, ask for approval, then build domain layer (model + abstract repo), explain decisions, and pause for user input before proceeding to next layer.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Hey, can you review this controller I wrote for PeerAssess?\n```dart\nimport 'package:get/get.dart';\nimport '../../data/datasources/remote/remote_task_source.dart';\n\nclass TaskController extends GetxController {\n  final RemoteTaskSource taskSource;\n  TaskController(this.taskSource);\n  \n  Future<void> getTasks() async {\n    var tasks = await taskSource.getTasks();\n  }\n}\n```",
+      "expected_output": "Should detect 3 violations: (1) importing from data layer in a controller, (2) depending on concrete RemoteTaskSource instead of abstract ITaskRepository, (3) calling datasource directly instead of through repository. Should explain why each matters and show corrected code.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I just picked up a Trello card with short ID `abc123XY` titled 'Add rubric scoring feature'. How should I set up my branch and what's the commit convention?",
+      "expected_output": "Should provide branch name: feature/abc123XY/add-rubric-scoring-feature, explain the tag/shortid/title format, and show conventional commit examples relevant to this feature.",
+      "files": []
+    }
+  ]
+}
