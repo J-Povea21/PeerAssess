@@ -5,15 +5,17 @@ class User {
     this.id,
     required this.name,
     required this.email,
-    required this.password,
+    this.password,
     required this.role,
+    this.avatarUrl,
   });
 
   String? id;
   String name;
   String email;
-  String password;
+  String? password;
   UserRole role;
+  String? avatarUrl;
 
   String get initials {
     final parts = name.split(' ');
@@ -24,26 +26,37 @@ class User {
   }
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["_id"],
+        id: json["id"] ?? json["_id"],
         name: json["name"] ?? "---",
         email: json["email"] ?? "---",
-        password: json["password"] ?? "",
-        role: json["role"] == "teacher" ? UserRole.teacher : UserRole.student,
+        password: json["password"],
+        avatarUrl: json["avatarUrl"],
+        role: _parseRole(json["role"]),
       );
 
+  static UserRole _parseRole(dynamic role) {
+    switch (role?.toString().toUpperCase()) {
+      case 'TEACHER':
+        return UserRole.teacher;
+      default:
+        return UserRole.student;
+    }
+  }
+
   Map<String, dynamic> toJson() => {
-        "_id": id ?? "0",
+        "id": id ?? "0",
         "name": name,
         "email": email,
-        "password": password,
-        "role": role == UserRole.teacher ? "teacher" : "student",
+        if (password != null) "password": password,
+        "avatarUrl": avatarUrl,
+        "role": role == UserRole.teacher ? "TEACHER" : "STUDENT",
       };
 
   Map<String, dynamic> toJsonNoId() => {
         "name": name,
         "email": email,
-        "password": password,
-        "role": role == UserRole.teacher ? "teacher" : "student",
+        if (password != null) "password": password,
+        "role": role == UserRole.teacher ? "TEACHER" : "STUDENT",
       };
 
   @override
