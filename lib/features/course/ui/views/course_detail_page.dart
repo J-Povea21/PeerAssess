@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../group/ui/views/category_list_page.dart';
 import '../../domain/models/course.dart';
+import '../viewmodels/course_controller.dart';
 import 'members_page.dart';
 
 class CourseDetailPage extends StatelessWidget {
@@ -12,13 +13,21 @@ class CourseDetailPage extends StatelessWidget {
 
   const CourseDetailPage({super.key, required this.course});
 
+  /// Returns the live version of this course from the controller, or the
+  /// static one passed at navigation time as fallback.
+  Course _liveCourse(CourseController ctrl) {
+    return ctrl.courses.firstWhereOrNull((c) => c.id == course.id) ?? course;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final courseCtrl = Get.find<CourseController>();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(course.name),
+          title: Obx(() => Text(_liveCourse(courseCtrl).name)),
           backgroundColor: Colors.transparent,
           elevation: 0,
           foregroundColor: AppColors.textDark,
@@ -47,7 +56,7 @@ class CourseDetailPage extends StatelessWidget {
           ),
           child: TabBarView(
             children: [
-              _buildInfoTab(context),
+              _buildInfoTab(context, courseCtrl),
               _buildCategoriesTab(),
               _buildMembersTab(),
             ],
@@ -57,24 +66,27 @@ class CourseDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTab(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoCard(),
-          const SizedBox(height: 20),
-          _buildEnrollmentCard(context),
-          const SizedBox(height: 20),
-          _buildStatsCards(),
-        ],
-      ),
-    );
+  Widget _buildInfoTab(BuildContext context, CourseController courseCtrl) {
+    return Obx(() {
+      final c = _liveCourse(courseCtrl);
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoCard(c),
+            const SizedBox(height: 20),
+            _buildEnrollmentCard(context, c),
+            const SizedBox(height: 20),
+            _buildStatsCards(c),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildInfoCard() {
-    final isActive = course.status == CourseStatus.active;
+  Widget _buildInfoCard(Course c) {
+    final isActive = c.status == CourseStatus.active;
     final statusColor = isActive ? AppColors.olive : AppColors.salmon;
     final statusText = isActive ? 'Activo' : 'Pendiente';
 
@@ -112,7 +124,7 @@ class CourseDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      course.name,
+                      c.name,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -120,7 +132,7 @@ class CourseDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Semestre ${course.semester}',
+                      'Semestre ${c.semester}',
                       style: const TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,
@@ -147,14 +159,14 @@ class CourseDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          if (course.teacherName != null) ...[
+          if (c.teacherName != null) ...[
             const SizedBox(height: 16),
             Row(
               children: [
                 const Icon(Icons.person, size: 18, color: AppColors.textMuted),
                 const SizedBox(width: 8),
                 Text(
-                  course.teacherName!,
+                  c.teacherName!,
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.textMuted,
@@ -168,8 +180,8 @@ class CourseDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnrollmentCard(BuildContext context) {
-    if (course.enrollmentCode == null) return const SizedBox.shrink();
+  Widget _buildEnrollmentCard(BuildContext context, Course c) {
+    if (c.enrollmentCode == null) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -207,7 +219,7 @@ class CourseDetailPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  course.enrollmentCode!,
+                  c.enrollmentCode!,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -217,22 +229,21 @@ class CourseDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              IconButton(
-                onPressed: () {
-                  Clipboard.setData(
-                      ClipboardData(text: course.enrollmentCode!));
-                  Get.snackbar(
-                    'Copiado',
-                    'Código copiado al portapapeles',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.olive,
-                    colorText: Colors.white,
-                    margin: const EdgeInsets.all(16),
-                    duration: const Duration(seconds: 2),
-                  );
-                },
-                icon: const Icon(Icons.copy_rounded, color: AppColors.olive),
-              ),
+              Builder(builder: (ctx) {
+                return IconButton(
+                  onPressed: () {
+                    Clipboard.setData(
+                        ClipboardData(text: c.enrollmentCode!));
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(
+                        content: Text('Código copiado al portapapeles'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_rounded, color: AppColors.olive),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 8),
@@ -245,12 +256,12 @@ class CourseDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsCards() {
+  Widget _buildStatsCards(Course c) {
     return Row(
       children: [
         Expanded(
           child: _buildStatCard(
-            course.studentCount.toString(),
+            c.studentCount.toString(),
             'Estudiantes',
             Icons.people_rounded,
             AppColors.olive,
@@ -259,7 +270,7 @@ class CourseDetailPage extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            course.categoryCount.toString(),
+            c.categoryCount.toString(),
             'Categorías',
             Icons.category_rounded,
             AppColors.salmon,
@@ -268,7 +279,7 @@ class CourseDetailPage extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            course.evaluationCount.toString(),
+            c.evaluationCount.toString(),
             'Evaluaciones',
             Icons.assessment_rounded,
             AppColors.rose,

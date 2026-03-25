@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
+import '../../../course/ui/viewmodels/course_controller.dart';
 import '../../domain/models/group.dart';
 import '../../domain/models/group_category.dart';
 import '../../domain/repositories/i_group_repository.dart';
@@ -17,9 +18,15 @@ class GroupController extends GetxController {
 
   Future<void> loadCategories(String courseId) async {
     logInfo('GroupController: Loading categories for course $courseId');
-    isLoading.value = true;
-    categories.value = await repository.getCategoriesByCourse(courseId);
-    isLoading.value = false;
+    await Future.microtask(() => isLoading.value = true);
+    try {
+      categories.value = await repository.getCategoriesByCourse(courseId);
+    } catch (e) {
+      logWarning('GroupController: Failed to load categories — $e');
+      categories.clear();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<GroupCategory?> importCsv(String courseId, String csvContent) async {
@@ -30,6 +37,8 @@ class GroupController extends GetxController {
           await repository.importCategoryFromCsv(courseId, csvContent);
       // Refresh the categories list
       await loadCategories(courseId);
+      // Refresh course counts (students, categories)
+      Get.find<CourseController>().refreshCourses();
       isImporting.value = false;
       return category;
     } catch (e) {

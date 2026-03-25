@@ -36,7 +36,15 @@
       "Bash(C:/Users/Veron/flutter/bin/flutter analyze:*)",
       "Bash(find 'C:\\\\Users\\\\Veron\\\\Documents\\\\Octavo Semestre\\\\Movil\\\\PeerAssess\\\\build\\\\file_picker' -name *.gradle -o -name *.gradle.kts)",
       "WebFetch(domain:roble.openlab.uninorte.edu.co)",
-      "Bash(grep -oE \"HMe=\\\\[.{0,5000}\" /tmp/roble_bundle.js)"
+      "Bash(grep -oE \"HMe=\\\\[.{0,5000}\" /tmp/roble_bundle.js)",
+      "Bash(flutter analyze:*)",
+      "Bash(cmd //c \"flutter analyze lib/features/course/data/datasources/remote/remote_course_source.dart lib/features/course/ui/views/course_detail_page.dart lib/features/group/ui/viewmodels/group_controller.dart lib/features/course/ui/viewmodels/course_controller.dart 2>&1\")",
+      "Bash(powershell -Command \"flutter analyze lib/features/course/data/datasources/remote/remote_course_source.dart lib/features/course/ui/views/course_detail_page.dart lib/features/group/ui/viewmodels/group_controller.dart lib/features/course/ui/viewmodels/course_controller.dart 2>&1\")",
+      "Bash(where.exe flutter:*)",
+      "Bash(powershell -Command \"Get-Command flutter -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell -Command '$env:Path -split \"\";\"\" | Where-Object {$_ -like \"\"*flutter*\"\"}')",
+      "Read(//c/Users/Veron/Documents/Octavo Semestre/Movil/PeerAssess/**)",
+      "Read(//c/Users/Veron/**)"
     ]
   }
 }

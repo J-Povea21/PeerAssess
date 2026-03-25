@@ -81,7 +81,11 @@ class CourseController extends GetxController {
 
   Future<Course?> joinCourse(String enrollmentCode) async {
     logInfo("CourseController: Joining course with code $enrollmentCode");
-    return await repository.joinCourse(enrollmentCode);
+    final course = await repository.joinCourse(enrollmentCode);
+    if (course != null) {
+      await refreshCourses();
+    }
+    return course;
   }
 
   Future<void> addCourse(Course course) async {

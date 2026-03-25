@@ -11,9 +11,12 @@ import '../i_group_source.dart';
 /// Remote group source backed by Roble database.
 ///
 /// Roble table schemas:
-///   GroupCategories: _id, courseID, name, importedAt
-///   Groups:          _id, categoryID, name
-///   GroupMembers:    _id, groupID, studentID
+///   Users:             _id, name, mail, role
+///   Courses:           _id, nrc, name, semester, teacherID, accessCode
+///   CourseEnrollments:  _id, courseID, studentID, joinedAt
+///   GroupCategories:   _id, courseID, name, importedAt
+///   Groups:            _id, categoryID, name
+///   GroupMembers:      _id, groupID, studentID
 class RemoteGroupSource with UiLoggy implements IGroupSource {
   final RobleDbClient _db;
 
@@ -67,17 +70,51 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
     return groups;
   }
 
+  /// Cache of all users, loaded once per session.
+  Map<String, Map<String, dynamic>>? _usersCache;
+
+  /// Loads all users from the Users table into a cache keyed by _id.
+  Future<Map<String, Map<String, dynamic>>> _getAllUsers() async {
+    if (_usersCache != null) return _usersCache!;
+    final allUsers = await _db.read('Users');
+    _usersCache = {
+      for (final u in allUsers)
+        if (u['_id'] != null) u['_id'].toString(): u
+    };
+    loggy.info('RemoteGroupSource: Cached ${_usersCache!.length} users');
+    return _usersCache!;
+  }
+
+  /// Reads GroupMembers for a group, then looks up each student in Users cache.
   Future<List<GroupMember>> _getMembersByGroup(String groupId) async {
     final records =
         await _db.read('GroupMembers', {'groupID': groupId});
-    return records
-        .map((r) => GroupMember(
-              id: r['_id']?.toString() ?? r['studentID']?.toString() ?? '',
-              firstName: r['firstName']?.toString() ?? '',
-              lastName: r['lastName']?.toString() ?? '',
-              email: r['email']?.toString() ?? '',
-            ))
-        .toList();
+    final usersMap = await _getAllUsers();
+    final members = <GroupMember>[];
+
+    for (final r in records) {
+      final studentId = r['studentID']?.toString() ?? '';
+      final user = usersMap[studentId];
+      if (user != null) {
+        final name = user['name']?.toString() ?? '';
+        final parts = name.split(' ');
+        members.add(GroupMember(
+          id: studentId,
+          firstName: parts.isNotEmpty ? parts.first : '',
+          lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+          email: user['mail']?.toString() ?? '',
+        ));
+      } else {
+        members.add(GroupMember(
+          id: studentId,
+          firstName: 'Estudiante',
+          lastName: studentId,
+          email: '',
+        ));
+      }
+    }
+
+    return members;
   }
 
   @override
@@ -88,7 +125,24 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
     final categoryName = parsed.categoryName;
     final groupMap = parsed.groups;
 
-    // 1. Insert category into Roble
+    // Invalidate users cache since we may create new users
+    _usersCache = null;
+
+    // 1. Ensure all students exist in Users table and collect their IDs
+    //    Also enroll them in the course
+    final emailToUserId = <String, String>{};
+    final allStudents = <GroupMember>{};
+    for (final members in groupMap.values) {
+      allStudents.addAll(members);
+    }
+
+    for (final student in allStudents) {
+      final userId = await _ensureUserExists(student);
+      emailToUserId[student.email] = userId;
+      await _ensureEnrollment(courseId, userId);
+    }
+
+    // 2. Insert category
     final categoryId = _generateId();
     await _db.insert('GroupCategories', [
       {
@@ -99,7 +153,7 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
       }
     ]);
 
-    // 2. Insert groups and members
+    // 3. Insert groups and members
     final groups = <Group>[];
     for (final entry in groupMap.entries) {
       final groupId = _generateId();
@@ -107,12 +161,12 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
         {'_id': groupId, 'categoryID': categoryId, 'name': entry.key}
       ]);
 
-      // Insert all members for this group
+      // Insert GroupMembers referencing the Users._id
       final memberRecords = entry.value
           .map((m) => {
                 '_id': _generateId(),
                 'groupID': groupId,
-                'studentID': m.id,
+                'studentID': emailToUserId[m.email] ?? m.id,
               })
           .toList();
 
@@ -120,11 +174,21 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
         await _db.insert('GroupMembers', memberRecords);
       }
 
+      // Update member IDs to the actual user IDs for the return value
+      final resolvedMembers = entry.value
+          .map((m) => GroupMember(
+                id: emailToUserId[m.email] ?? m.id,
+                firstName: m.firstName,
+                lastName: m.lastName,
+                email: m.email,
+              ))
+          .toList();
+
       groups.add(Group(
         id: groupId,
         name: entry.key,
         categoryId: categoryId,
-        members: entry.value,
+        members: resolvedMembers,
       ));
     }
 
@@ -136,6 +200,48 @@ class RemoteGroupSource with UiLoggy implements IGroupSource {
       courseId: courseId,
       groups: groups,
     );
+  }
+
+  /// Checks if a user with this email exists in Users.
+  /// If not, creates a new student user. Returns the user's _id.
+  Future<String> _ensureUserExists(GroupMember student) async {
+    // Look up by email (Roble Users table uses 'mail')
+    final existing = await _db.read('Users', {'mail': student.email});
+    if (existing.isNotEmpty) {
+      return existing.first['_id']?.toString() ?? '';
+    }
+
+    // Create new student user
+    final userId = _generateId();
+    await _db.insert('Users', [
+      {
+        '_id': userId,
+        'name': '${student.firstName} ${student.lastName}'.trim(),
+        'mail': student.email,
+        'role': 'STUDENT',
+      }
+    ]);
+    loggy.info('RemoteGroupSource: Created user $userId for ${student.email}');
+    return userId;
+  }
+
+  /// Ensures the student is enrolled in the course.
+  Future<void> _ensureEnrollment(String courseId, String userId) async {
+    final existing = await _db.read('CourseEnrollments', {
+      'courseID': courseId,
+      'studentID': userId,
+    });
+    if (existing.isNotEmpty) return;
+
+    await _db.insert('CourseEnrollments', [
+      {
+        '_id': _generateId(),
+        'courseID': courseId,
+        'studentID': userId,
+        'joinedAt': DateTime.now().toIso8601String(),
+      }
+    ]);
+    loggy.info('RemoteGroupSource: Enrolled $userId in course $courseId');
   }
 
   // ── CSV Parsing ──

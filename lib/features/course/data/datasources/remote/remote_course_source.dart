@@ -31,31 +31,58 @@ class RemoteCourseSource with UiLoggy implements ICourseSource {
     return List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
   }
 
-  /// Maps a Roble Courses row to a Course domain model.
-  Course _rowToCourse(Map<String, dynamic> r) {
+  /// Maps a Roble Courses row to a Course domain model (without counts).
+  Course _rowToCourse(Map<String, dynamic> r,
+      {int studentCount = 0, int categoryCount = 0, int evaluationCount = 0}) {
     return Course(
       id: r['_id']?.toString(),
       name: r['name']?.toString() ?? '---',
       semester: r['semester']?.toString() ?? '---',
-      studentCount: 0, // computed separately if needed
+      studentCount: studentCount,
       status: CourseStatus.active,
-      categoryCount: 0,
-      evaluationCount: 0,
+      categoryCount: categoryCount,
+      evaluationCount: evaluationCount,
       teacherName: null,
       enrollmentCode: r['accessCode']?.toString(),
+    );
+  }
+
+  /// Safely reads a table count, returning 0 on error.
+  Future<int> _safeCount(String table, Map<String, String> filters) async {
+    try {
+      final rows = await _db.read(table, filters);
+      return rows.length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// Enriches a course row with real counts from Roble tables.
+  Future<Course> _rowToCourseWithCounts(Map<String, dynamic> r) async {
+    final courseId = r['_id']?.toString() ?? '';
+    final results = await Future.wait([
+      _safeCount('CourseEnrollments', {'courseID': courseId}),
+      _safeCount('GroupCategories', {'courseID': courseId}),
+      _safeCount('assessments', {'course_id': courseId}),
+    ]);
+    return _rowToCourse(
+      r,
+      studentCount: results[0],
+      categoryCount: results[1],
+      evaluationCount: results[2],
     );
   }
 
   @override
   Future<List<Course>> getCourses() async {
     final records = await _db.read('Courses');
-    return records.map(_rowToCourse).toList();
+    return Future.wait(records.map(_rowToCourseWithCounts));
   }
 
   @override
   Future<List<Course>> getCoursesByTeacher(String teacherId) async {
     final records = await _db.read('Courses', {'teacherID': teacherId});
-    return records.map(_rowToCourse).toList();
+    return Future.wait(records.map(_rowToCourseWithCounts));
   }
 
   @override
@@ -76,7 +103,7 @@ class RemoteCourseSource with UiLoggy implements ICourseSource {
   Future<Course?> getCourseById(String courseId) async {
     final records = await _db.read('Courses', {'_id': courseId});
     if (records.isEmpty) return null;
-    return _rowToCourse(records.first);
+    return _rowToCourseWithCounts(records.first);
   }
 
   @override
