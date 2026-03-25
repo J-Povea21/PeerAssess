@@ -13,18 +13,27 @@ CREATE TABLE courses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (teacher_id) REFERENCES users(id)
 );
-CREATE TABLE groups (
-    id SERIAL PRIMARY KEY,
-    category_id INTEGER NOT NULL,
-    name VARCHAR(100),
-    FOREIGN KEY (category_id) REFERENCES group_categories(id)
-);
 
 CREATE TABLE group_categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     course_id INTEGER,
     FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+
+CREATE TABLE groups (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    category_id INTEGER,
+    FOREIGN KEY (category_id) REFERENCES group_categories(id)
+);
+
+CREATE TABLE user_groups (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    group_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
 CREATE TABLE assessments (
@@ -65,5 +74,5 @@ CREATE TABLE invitations (
 );
 
 INSERT INTO users (name, email, role)
-VALUES ('Augusto Salazar', 'augusto.salazar@peerassess.com', 'teacher');
+VALUES ('Augusto Salazar', 'augustosalazar@uninorte.edu.co', 'teacher');
 
