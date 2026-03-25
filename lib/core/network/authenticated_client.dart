@@ -122,6 +122,13 @@ class AuthenticatedClient extends http.BaseClient {
   /// Creates a copy of the original request so it can be retried.
   /// http.BaseRequest cannot be sent twice, so we must reconstruct it.
   http.BaseRequest _copyRequest(http.BaseRequest request) {
+    if (request is http.MultipartRequest) {
+      final copy = http.MultipartRequest(request.method, request.url);
+      copy.headers.addAll(request.headers);
+      copy.fields.addAll(request.fields);
+      copy.files.addAll(request.files);
+      return copy;
+    }
     final copy = http.Request(request.method, request.url);
     copy.headers.addAll(request.headers);
     if (request is http.Request) {

@@ -7,6 +7,7 @@ import 'central.dart';
 import 'core/app_theme.dart';
 import 'core/config/app_config.dart';
 import 'core/network/authenticated_client.dart';
+import 'core/network/roble_db_client.dart';
 import 'core/services/session_service.dart';
 
 import 'features/auth/data/datasources/i_auth_source.dart';
@@ -17,10 +18,16 @@ import 'features/auth/ui/viewmodels/auth_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
 
 import 'features/course/data/datasources/i_course_source.dart';
-import 'features/course/data/datasources/local/local_course_source.dart';
+import 'features/course/data/datasources/remote/remote_course_source.dart';
 import 'features/course/data/repositories/course_repository.dart';
 import 'features/course/domain/repositories/i_course_repository.dart';
 import 'features/course/ui/viewmodels/course_controller.dart';
+
+import 'features/group/data/datasources/i_group_source.dart';
+import 'features/group/data/datasources/remote/remote_group_source.dart';
+import 'features/group/data/repositories/group_repository.dart';
+import 'features/group/domain/repositories/i_group_repository.dart';
+import 'features/group/ui/viewmodels/group_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,15 +48,24 @@ void main() async {
     onSessionExpired: () async => Get.offAll(() => const LoginPage()),
   ));
 
+  // Roble Database Client (uses AuthenticatedClient for auto Bearer token)
+  final robleDb = RobleDbClient(Get.find<http.Client>());
+  Get.put(robleDb);
+
   // Auth
   Get.put<IAuthSource>(RemoteAuthSource(Get.find(), Get.find()));
   Get.put<IAuthRepository>(AuthRepository(Get.find()));
   Get.put(AuthController(Get.find()));
 
-  // Course
-  Get.put<ICourseSource>(LocalCourseSource());
-  Get.put<ICourseRepository>(CourseRepository(Get.find()));
-  Get.lazyPut(() => CourseController(Get.find()));
+  // Course (remote — persisted in Roble)
+  Get.put<ICourseSource>(RemoteCourseSource(robleDb, sessionService));
+  Get.put<ICourseRepository>(CourseRepository(Get.find<ICourseSource>()));
+  Get.put(CourseController(Get.find()));
+
+  // Group (remote — persisted in Roble)
+  Get.put<IGroupSource>(RemoteGroupSource(robleDb));
+  Get.put<IGroupRepository>(GroupRepository(Get.find()));
+  Get.put(GroupController(Get.find()));
 
   runApp(const MyApp());
 }

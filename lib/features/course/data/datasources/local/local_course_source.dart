@@ -1,79 +1,29 @@
+import 'dart:math';
+
 import '../../../domain/models/course.dart';
 import '../i_course_source.dart';
 
 class LocalCourseSource implements ICourseSource {
-  final List<Course> _courses = [
-    // Teacher courses (teacherId: '1' = Prof. Ospina)
-    Course(
-      id: '101',
-      name: 'Desarrollo Móvil',
-      semester: '2026-10',
-      studentCount: 28,
-      status: CourseStatus.active,
-      categoryCount: 3,
-      evaluationCount: 2,
-      teacherName: 'Prof. Ospina',
-    ),
-    Course(
-      id: '102',
-      name: 'Compiladores',
-      semester: '2026-10',
-      studentCount: 32,
-      status: CourseStatus.active,
-      categoryCount: 2,
-      evaluationCount: 5,
-      teacherName: 'Prof. Ospina',
-    ),
-    Course(
-      id: '103',
-      name: 'Inteligencia Artificial',
-      semester: '2026-10',
-      studentCount: 27,
-      status: CourseStatus.pending,
-      categoryCount: 0,
-      evaluationCount: 0,
-      teacherName: 'Prof. Ospina',
-    ),
-    // Student courses (studentId: '2' = María García)
-    Course(
-      id: '201',
-      name: 'Desarrollo Móvil',
-      semester: '2026-10',
-      studentCount: 28,
-      status: CourseStatus.active,
-      categoryCount: 3,
-      evaluationCount: 2,
-      teacherName: 'Prof. Ospina',
-      groupName: 'Grupo 3',
-      pendingEvaluations: 1,
-    ),
-    Course(
-      id: '202',
-      name: 'Ingeniería de Software',
-      semester: '2026-10',
-      studentCount: 30,
-      status: CourseStatus.active,
-      categoryCount: 2,
-      evaluationCount: 3,
-      teacherName: 'Prof. Barreto',
-      groupName: 'Grupo 1',
-      pendingEvaluations: 0,
-    ),
-  ];
+  final List<Course> _courses = [];
 
-  // Maps courseIds to teacherIds/studentIds for filtering
-  final Map<String, String> _teacherCourses = {
-    '101': '1',
-    '102': '1',
-    '103': '1',
-  };
+  /// Maps courseId → teacherId (who created the course)
+  final Map<String, String> _teacherCourses = {};
 
-  final Map<String, String> _studentCourses = {
-    '201': '2',
-    '202': '2',
-  };
+  /// Maps courseId → Set<studentId> (enrolled students)
+  final Map<String, Set<String>> _studentEnrollments = {};
+
+  /// Tracks the current teacher for course creation
+  String? _activeTeacherId;
 
   LocalCourseSource();
+
+  String _generateId() => DateTime.now().millisecondsSinceEpoch.toString();
+
+  String _generateEnrollmentCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    return List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
+  }
 
   @override
   Future<List<Course>> getCourses() {
@@ -82,6 +32,7 @@ class LocalCourseSource implements ICourseSource {
 
   @override
   Future<List<Course>> getCoursesByTeacher(String teacherId) {
+    _activeTeacherId = teacherId;
     final courseIds = _teacherCourses.entries
         .where((e) => e.value == teacherId)
         .map((e) => e.key)
@@ -92,8 +43,8 @@ class LocalCourseSource implements ICourseSource {
 
   @override
   Future<List<Course>> getCoursesByStudent(String studentId) {
-    final courseIds = _studentCourses.entries
-        .where((e) => e.value == studentId)
+    final courseIds = _studentEnrollments.entries
+        .where((e) => e.value.contains(studentId))
         .map((e) => e.key)
         .toSet();
     final filtered = _courses.where((c) => courseIds.contains(c.id)).toList();
@@ -101,15 +52,29 @@ class LocalCourseSource implements ICourseSource {
   }
 
   @override
+  Future<Course?> getCourseById(String courseId) {
+    final course = _courses.cast<Course?>().firstWhere(
+          (c) => c!.id == courseId,
+          orElse: () => null,
+        );
+    return Future.value(course);
+  }
+
+  @override
   Future<bool> addCourse(Course course) {
-    course.id = DateTime.now().millisecondsSinceEpoch.toString();
+    course.id = _generateId();
+    course.enrollmentCode = _generateEnrollmentCode();
     _courses.add(course);
+    // Associate with the active teacher
+    if (_activeTeacherId != null) {
+      _teacherCourses[course.id!] = _activeTeacherId!;
+    }
     return Future.value(true);
   }
 
   @override
   Future<bool> updateCourse(Course course) {
-    var index = _courses.indexWhere((c) => c.id == course.id);
+    final index = _courses.indexWhere((c) => c.id == course.id);
     if (index != -1) {
       _courses[index] = course;
       return Future.value(true);
@@ -119,7 +84,27 @@ class LocalCourseSource implements ICourseSource {
 
   @override
   Future<bool> deleteCourse(Course course) {
-    _courses.remove(course);
+    _courses.removeWhere((c) => c.id == course.id);
+    _teacherCourses.remove(course.id);
+    _studentEnrollments.remove(course.id);
     return Future.value(true);
+  }
+
+  @override
+  Future<Course?> joinCourse(String enrollmentCode) {
+    final course = _courses.cast<Course?>().firstWhere(
+          (c) => c!.enrollmentCode == enrollmentCode,
+          orElse: () => null,
+        );
+    if (course != null) {
+      course.studentCount++;
+    }
+    return Future.value(course);
+  }
+
+  /// Enroll a student in a course (for tracking).
+  void enrollStudent(String courseId, String studentId) {
+    _studentEnrollments.putIfAbsent(courseId, () => {});
+    _studentEnrollments[courseId]!.add(studentId);
   }
 }

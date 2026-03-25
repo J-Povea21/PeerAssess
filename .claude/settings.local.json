@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find '/c/Users/Veron/Documents/Octavo Semestre/Movil/PeerAssess' -name *route* -o -name *nav* -o -name *navigation*)",
+      "WebFetch(domain:roble-api.openlab.uninorte.edu.co)",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}' https://roble-api.openlab.uninorte.edu.co/api/v1)",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}' https://roble-api.openlab.uninorte.edu.co/api-json)",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}' https://roble-api.openlab.uninorte.edu.co/swagger-json)",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}' https://roble-api.openlab.uninorte.edu.co/openapi.json)",
+      "Bash(for path:*)",
+      "Bash(do echo:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://roble-api.openlab.uninorte.edu.co/api/$path\")",
+      "Bash(done)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://roble-api.openlab.uninorte.edu.co/$path\")",
+      "Bash(curl -s -w ' %{http_code}' https://roble-api.openlab.uninorte.edu.co/$path)",
+      "Bash(DUMMY=\"test-token\")",
+      "Bash(for action:*)",
+      "Bash(do)",
+      "Bash(echo \"=== POST /auth/{token}/$action ===\")",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/$action\")",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/login\")",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/refresh-token\")",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/signup-direct\")",
+      "Bash(curl -s \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/verify-token\")",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" \"https://roble-api.openlab.uninorte.edu.co/auth/$DUMMY/logout\")",
+      "Bash(curl -s -L \"https://www.figma.com/design/N6kajiJicDVZDNC8lQWPrG/PeerAssess---Prototipo-App-Evaluacion-Colaborativa?node-id=0-1\")",
+      "Bash(curl -s -L \"https://www.figma.com/proto/N6kajiJicDVZDNC8lQWPrG/PeerAssess---Prototipo-App-Evaluacion-Colaborativa?node-id=0-1\")",
+      "Bash(curl:*)",
+      "Bash(grep -oE '\\(node-id|page|screen|frame\\)[^\"\"\"\"<>]{0,100}')",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:embed.figma.com)",
+      "Bash(grep -oE 'EARLY_ARGS[^<]{0,3000}')",
+      "Read(//tmp/**)",
+      "Bash(cygpath:*)",
+      "Bash(C:/Users/Veron/flutter/bin/flutter pub:*)",
+      "Bash(C:/Users/Veron/flutter/bin/flutter analyze:*)",
+      "Bash(find 'C:\\\\Users\\\\Veron\\\\Documents\\\\Octavo Semestre\\\\Movil\\\\PeerAssess\\\\build\\\\file_picker' -name *.gradle -o -name *.gradle.kts)",
+      "WebFetch(domain:roble.openlab.uninorte.edu.co)",
+      "Bash(grep -oE \"HMe=\\\\[.{0,5000}\" /tmp/roble_bundle.js)"
+    ]
+  }
+}
