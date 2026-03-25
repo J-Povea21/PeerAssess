@@ -7,6 +7,7 @@ import '../../domain/repositories/i_auth_repository.dart';
 class AuthController extends GetxController {
   late IAuthRepository repository;
   final Rx<User?> _currentUser = Rx<User?>(null);
+  final RxBool isRestoringSession = false.obs;
   final RxBool isLoading = false.obs;
   final RxBool isTeacherSelected = true.obs;
 
@@ -24,7 +25,7 @@ class AuthController extends GetxController {
 
   Future<void> _restoreSession() async {
     logInfo('AuthController: Attempting to restore session');
-    isLoading.value = true;
+    isRestoringSession.value = true;
     final user = await repository.getCurrentUser();
     if (user != null) {
       _currentUser.value = user;
@@ -32,7 +33,7 @@ class AuthController extends GetxController {
     } else {
       logInfo('AuthController: No active session found');
     }
-    isLoading.value = false;
+    isRestoringSession.value = false;
   }
 
   Future<bool> login(String email, String password) async {

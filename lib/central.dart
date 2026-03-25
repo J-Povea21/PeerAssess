@@ -15,7 +15,7 @@ class Central extends StatelessWidget {
   Widget build(BuildContext context) {
     AuthController authController = Get.find();
     return Obx(() {
-      if (authController.isLoading.value) {
+      if (authController.isRestoringSession.value) {
         return const SplashPage();
       }
       if (!authController.isLogged) {

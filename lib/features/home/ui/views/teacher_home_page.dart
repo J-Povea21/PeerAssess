@@ -114,15 +114,38 @@ class TeacherHomePage extends StatelessWidget {
             ),
           ],
         ),
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: AppColors.olive,
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+        PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == 'logout') {
+              Get.find<AuthController>().logout();
+            }
+          },
+          offset: const Offset(0, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'logout',
+              child: Row(
+                children: [
+                  Icon(Icons.logout_rounded, size: 20, color: AppColors.salmon),
+                  SizedBox(width: 10),
+                  Text('Cerrar sesión'),
+                ],
+              ),
+            ),
+          ],
+          child: CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.olive,
+            child: Text(
+              initials,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
