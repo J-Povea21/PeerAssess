@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
-import '../../domain/models/user.dart';
+import '../../../../core/models/user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 
 class AuthController extends GetxController {
@@ -15,6 +15,25 @@ class AuthController extends GetxController {
   User? get currentUser => _currentUser.value;
   bool get isLogged => _currentUser.value != null;
   UserRole? get currentRole => _currentUser.value?.role;
+
+  @override
+  void onInit() {
+    _restoreSession();
+    super.onInit();
+  }
+
+  Future<void> _restoreSession() async {
+    logInfo('AuthController: Attempting to restore session');
+    isLoading.value = true;
+    final user = await repository.getCurrentUser();
+    if (user != null) {
+      _currentUser.value = user;
+      logInfo('AuthController: Session restored — ${user.name}');
+    } else {
+      logInfo('AuthController: No active session found');
+    }
+    isLoading.value = false;
+  }
 
   Future<bool> login(String email, String password) async {
     logInfo("AuthController: Attempting login for $email");
