@@ -1,30 +1,81 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 
-import 'package:f_clean_template/main.dart';
+import 'helpers/test_helpers.dart';
 
+/// Smoke test: verifies the shared test infrastructure works correctly. This is an example
+/// of how the mocks can be used!
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  tearDown(() => Get.reset());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('Test infrastructure smoke tests', () {
+    test('MockAuthController can be registered and found via GetX', () {
+      final controller = MockAuthController();
+      Get.put<MockAuthController>(controller);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(Get.find<MockAuthController>(), isNotNull);
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('MockAuthController defaults to logged-out state', () {
+      final controller = MockAuthController();
+
+      expect(controller.isLogged, false);
+      expect(controller.currentUser, isNull);
+      expect(controller.currentRole, isNull);
+    });
+
+    test('MockAuthController can switch to teacher persona', () {
+      final controller = MockAuthController();
+      controller.setUser(mockTeacher);
+
+      expect(controller.isLogged, true);
+      expect(controller.currentUser!.name, 'Prof. García');
+      expect(controller.currentUser!.role.name, 'teacher');
+    });
+
+    test('MockAuthController can switch to student persona', () {
+      final controller = MockAuthController();
+      controller.setUser(mockStudent);
+
+      expect(controller.isLogged, true);
+      expect(controller.currentUser!.name, 'María López');
+      expect(controller.currentUser!.role.name, 'student');
+    });
+
+    test('MockCourseController can hold course fixtures', () {
+      final controller = MockCourseController();
+      controller.courses.assignAll(mockCourses());
+
+      expect(controller.courses.length, 2);
+      expect(controller.courses[0].name, 'Desarrollo Móvil');
+    });
+
+    test('MockGroupController can hold category fixtures', () {
+      final controller = MockGroupController();
+      controller.categories.assign(mockCategory());
+
+      expect(controller.categories.length, 1);
+      expect(controller.categories[0].groupCount, 2);
+      expect(controller.categories[0].memberCount, 3);
+    });
+
+    test('isAUri matcher works', () {
+      expect(Uri.parse('https://example.com'), isAUri);
+      expect('not a uri', isNot(isAUri));
+    });
+
+    test('MockHttpClient can be instantiated', () {
+      final client = MockHttpClient();
+      expect(client, isNotNull);
+    });
+
+    testWidgets('pumpApp wraps widget in GetMaterialApp', (tester) async {
+      await tester.pumpWidget(pumpApp(
+        const Text('Hello PeerAssess'),
+      ));
+
+      expect(find.text('Hello PeerAssess'), findsOneWidget);
+    });
   });
 }
