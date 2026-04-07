@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:loggy/loggy.dart';
@@ -19,6 +20,13 @@ class RobleDbClient with UiLoggy {
 
   String get _base =>
       '${AppConfig.robleBaseUrl}/database/${AppConfig.robleToken}';
+
+  /// Returns the current server time (UTC) from the Roble HTTP `Date` header.
+  /// Used instead of device clock for deadline enforcement.
+  Future<DateTime> getServerTime() async {
+    final response = await httpClient.head(Uri.parse(_base));
+    return HttpDate.parse(response.headers['date']!).toUtc();
+  }
 
   /// Insert one or more records into [tableName].
   /// Returns `{ inserted: [...], skipped: [...] }`.
