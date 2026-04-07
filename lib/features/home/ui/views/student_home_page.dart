@@ -5,9 +5,81 @@ import 'package:get/get.dart';
 import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../../course/domain/models/course.dart';
 import '../../../course/ui/viewmodels/course_controller.dart';
+import '../../../course/ui/views/course_detail_page.dart';
+import '../../../course/ui/views/course_list_page.dart';
+import '../../../enrollment/ui/views/join_course_page.dart';
+import '../../../profile/ui/views/profile_page.dart';
 
-class StudentHomePage extends StatelessWidget {
+class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
+
+  @override
+  State<StudentHomePage> createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends State<StudentHomePage> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [
+          _StudentDashboard(),
+          CourseListPage(),
+          _ResultsPlaceholder(),
+          ProfilePage(),
+        ],
+      ),
+      floatingActionButton: (_currentIndex == 0 || _currentIndex == 1)
+          ? FloatingActionButton(
+              heroTag: 'student_home_fab',
+              onPressed: () => Get.to(() => const JoinCoursePage()),
+              backgroundColor: AppColors.olive,
+              child: const Icon(Icons.group_add_rounded, color: Colors.white),
+            )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.olive,
+        unselectedItemColor: AppColors.textMuted,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded), label: 'Inicio'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.book_rounded), label: 'Cursos'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart_rounded), label: 'Resultados'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded), label: 'Perfil'),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudentDashboard extends StatefulWidget {
+  const _StudentDashboard();
+
+  @override
+  State<_StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<_StudentDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authController = Get.find<AuthController>();
+      final courseController = Get.find<CourseController>();
+      courseController.getCoursesByStudent(authController.currentUser!.id!);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,100 +87,116 @@ class StudentHomePage extends StatelessWidget {
     final courseController = Get.find<CourseController>();
     final user = authController.currentUser!;
 
-    // Load courses for this student
-    courseController.getCoursesByStudent(user.id!);
-
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.beige,
-              Colors.white,
-              AppColors.rose.withValues(alpha: 0.05),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Obx(() {
-            if (courseController.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final pendingCourse = courseController.courses
-                .cast<Course?>()
-                .firstWhere((c) => c!.pendingEvaluations > 0, orElse: () => null);
-
-            return CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(user.name, user.initials),
-                        const SizedBox(height: 20),
-                        if (pendingCourse != null)
-                          _buildPendingBanner(pendingCourse),
-                        if (pendingCourse != null) const SizedBox(height: 20),
-                        const Text(
-                          'MIS CURSOS',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textMuted,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildStudentCourseCard(
-                            courseController.courses[index]),
-                      ),
-                      childCount: courseController.courses.length,
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'RESULTADOS RECIENTES',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textMuted,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildResultCard(),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.beige,
+            Colors.white,
+            AppColors.rose.withValues(alpha: 0.05),
+          ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      child: SafeArea(
+        child: Obx(() {
+          if (courseController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final pendingCourse = courseController.courses
+              .cast<Course?>()
+              .firstWhere((c) => c!.pendingEvaluations > 0,
+                  orElse: () => null);
+
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(user.name, user.initials),
+                      const SizedBox(height: 20),
+                      if (pendingCourse != null) _buildPendingBanner(pendingCourse),
+                      if (pendingCourse != null) const SizedBox(height: 20),
+                      const Text(
+                        'MIS CURSOS',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMuted,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: courseController.courses.isEmpty
+                    ? SliverToBoxAdapter(
+                        child: Container(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            children: [
+                              Icon(Icons.book_outlined,
+                                  size: 48,
+                                  color: AppColors.textMuted
+                                      .withValues(alpha: 0.5)),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'No estás inscrito en ningún curso',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildStudentCourseCard(
+                                courseController.courses[index]),
+                          ),
+                          childCount: courseController.courses.length,
+                        ),
+                      ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'RESULTADOS RECIENTES',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMuted,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildResultCard(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
@@ -119,35 +207,24 @@ class StudentHomePage extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hola',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textMuted,
-              ),
-            ),
+            Text('Hola',
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
             const SizedBox(height: 4),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
+            Text(name,
+                style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark)),
           ],
         ),
         CircleAvatar(
           radius: 24,
           backgroundColor: AppColors.olive,
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-          ),
+          child: Text(initials,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16)),
         ),
       ],
     );
@@ -160,10 +237,7 @@ class StudentHomePage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [
-            AppColors.salmon,
-            AppColors.rose,
-          ],
+          colors: [AppColors.salmon, AppColors.rose],
         ),
         borderRadius: BorderRadius.circular(14),
       ),
@@ -175,41 +249,29 @@ class StudentHomePage extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.warning_rounded,
-              color: Colors.white,
-              size: 24,
-            ),
+            child: const Icon(Icons.warning_rounded,
+                color: Colors.white, size: 24),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Evaluación pendiente',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+                const Text('Evaluación pendiente',
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white)),
                 const SizedBox(height: 2),
-                Text(
-                  'Sprint 2 - ${course.name}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
-                ),
-                Text(
-                  'Quedan 2h 30min',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text('Sprint 2 - ${course.name}',
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withValues(alpha: 0.85))),
+                Text('Quedan 2h 30min',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -224,80 +286,72 @@ class StudentHomePage extends StatelessWidget {
         hasPending ? '${course.pendingEvaluations} pendiente' : 'Al día';
     final badgeColor = hasPending ? AppColors.salmon : AppColors.olive;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.beige,
-              borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: () => Get.to(() => CourseDetailPage(course: course)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: const Icon(
-              Icons.book_rounded,
-              color: AppColors.olive,
-              size: 22,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.beige,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.book_rounded,
+                  color: AppColors.olive, size: 22),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  course.name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textDark,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(course.name,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${course.teacherName ?? ""} | ${course.groupName ?? ""}',
+                    style: const TextStyle(
+                        fontSize: 13, color: AppColors.textMuted),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${course.teacherName ?? ""} | ${course.groupName ?? ""}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              badgeText,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: badgeColor,
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: badgeColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(badgeText,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: badgeColor)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildResultCard() {
-    // Mock data — will come from an evaluation module in the future
     final criteria = [
       {'name': 'Puntualidad', 'score': 4.5},
       {'name': 'Contribuciones', 'score': 4.0},
@@ -330,49 +384,35 @@ class StudentHomePage extends StatelessWidget {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Sprint 1 - Dev Móvil',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textDark,
-                    ),
-                  ),
+                  Text('Sprint 1 - Dev Móvil',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark)),
                   SizedBox(height: 2),
-                  Text(
-                    'Resultado público',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
+                  Text('Resultado público',
+                      style:
+                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    average.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.olive,
-                    ),
-                  ),
-                  const Text(
-                    '/ 5.0',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
+                  Text(average.toStringAsFixed(1),
+                      style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.olive)),
+                  const Text('/ 5.0',
+                      style:
+                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...criteria.map((c) => _buildCriteriaRow(
-              c['name'] as String, c['score'] as double)),
+          ...criteria.map((c) =>
+              _buildCriteriaRow(c['name'] as String, c['score'] as double)),
         ],
       ),
     );
@@ -385,13 +425,9 @@ class StudentHomePage extends StatelessWidget {
         children: [
           SizedBox(
             width: 110,
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textMuted,
-              ),
-            ),
+            child: Text(name,
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textMuted)),
           ),
           Expanded(
             child: ClipRRect(
@@ -406,36 +442,49 @@ class StudentHomePage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Text(
-            score.toStringAsFixed(1),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDark,
-            ),
-          ),
+          Text(score.toStringAsFixed(1),
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textDark)),
         ],
       ),
     );
   }
+}
 
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: AppColors.olive,
-      unselectedItemColor: AppColors.textMuted,
-      backgroundColor: Colors.white,
-      elevation: 8,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Inicio'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.book_rounded), label: 'Cursos'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_rounded), label: 'Resultados'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded), label: 'Perfil'),
-      ],
+class _ResultsPlaceholder extends StatelessWidget {
+  const _ResultsPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.beige,
+            Colors.white,
+            AppColors.rose.withValues(alpha: 0.05),
+          ],
+        ),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bar_chart_outlined,
+                size: 64, color: AppColors.textMuted),
+            SizedBox(height: 16),
+            Text('Resultados',
+                style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
+            SizedBox(height: 8),
+            Text('Próximamente',
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
+          ],
+        ),
+      ),
     );
   }
 }

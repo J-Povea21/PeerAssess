@@ -20,6 +20,10 @@ class CourseRepository implements ICourseRepository {
       await courseSource.getCoursesByStudent(studentId);
 
   @override
+  Future<Course?> getCourseById(String courseId) async =>
+      await courseSource.getCourseById(courseId);
+
+  @override
   Future<bool> addCourse(Course course) async =>
       await courseSource.addCourse(course);
 
@@ -30,4 +34,8 @@ class CourseRepository implements ICourseRepository {
   @override
   Future<bool> deleteCourse(Course course) async =>
       await courseSource.deleteCourse(course);
+
+  @override
+  Future<Course?> joinCourse(String enrollmentCode) async =>
+      await courseSource.joinCourse(enrollmentCode);
 }

@@ -1,4 +1,4 @@
-import '../../domain/models/user.dart';
+import '../../../../core/models/user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../datasources/i_auth_source.dart';
 

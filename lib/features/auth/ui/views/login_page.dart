@@ -16,11 +16,25 @@ class _LoginPageState extends State<LoginPage> {
   final AuthController controller = Get.find();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final ValueNotifier<bool> _formFilled = ValueNotifier(false);
+
+  void _onFieldChanged() {
+    _formFilled.value = emailController.text.trim().isNotEmpty &&
+        passwordController.text.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    emailController.addListener(_onFieldChanged);
+    passwordController.addListener(_onFieldChanged);
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _formFilled.dispose();
     super.dispose();
   }
 
@@ -216,50 +230,54 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLoginButton() {
-    return Obx(() => SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: controller.isLoading.value
-                ? null
-                : () async {
-                    final success = await controller.login(
-                      emailController.text.trim(),
-                      passwordController.text,
-                    );
-                    if (!success && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Credenciales inválidas'),
-                        ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _formFilled,
+      builder: (context, isFilled, _) => Obx(() => SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: (!isFilled || controller.isLoading.value)
+                  ? null
+                  : () async {
+                      final success = await controller.login(
+                        emailController.text.trim(),
+                        passwordController.text,
                       );
-                    }
-                  },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.olive,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                      if (!success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Credenciales inválidas'),
+                          ),
+                        );
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.olive,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.olive.withValues(alpha: 0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
+              child: controller.isLoading.value
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Iniciar sesión',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
-            child: controller.isLoading.value
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Text(
-                    'Iniciar sesión',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-          ),
-        ));
+          )),
+    );
   }
 }

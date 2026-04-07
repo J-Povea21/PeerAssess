@@ -12,6 +12,7 @@ class Course {
     this.teacherName,
     this.groupName,
     this.pendingEvaluations = 0,
+    this.enrollmentCode,
   });
 
   String? id;
@@ -24,6 +25,7 @@ class Course {
   String? teacherName;
   String? groupName;
   int pendingEvaluations;
+  String? enrollmentCode;
 
   factory Course.fromJson(Map<String, dynamic> json) => Course(
         id: json["_id"],
@@ -38,6 +40,7 @@ class Course {
         teacherName: json["teacherName"],
         groupName: json["groupName"],
         pendingEvaluations: json["pendingEvaluations"] ?? 0,
+        enrollmentCode: json["enrollmentCode"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -51,6 +54,7 @@ class Course {
         "teacherName": teacherName,
         "groupName": groupName,
         "pendingEvaluations": pendingEvaluations,
+        "enrollmentCode": enrollmentCode,
       };
 
   Map<String, dynamic> toJsonNoId() => {
@@ -63,6 +67,7 @@ class Course {
         "teacherName": teacherName,
         "groupName": groupName,
         "pendingEvaluations": pendingEvaluations,
+        "enrollmentCode": enrollmentCode,
       };
 
   @override

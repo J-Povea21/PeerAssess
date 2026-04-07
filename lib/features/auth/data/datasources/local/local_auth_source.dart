@@ -1,4 +1,4 @@
-import '../../../domain/models/user.dart';
+import '../../../../../core/models/user.dart';
 import '../i_auth_source.dart';
 
 class LocalAuthSource implements IAuthSource {
@@ -43,4 +43,5 @@ class LocalAuthSource implements IAuthSource {
   Future<User?> getCurrentUser() {
     return Future.value(_currentUser);
   }
+
 }
