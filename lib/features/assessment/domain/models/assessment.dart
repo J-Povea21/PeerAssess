@@ -21,40 +21,40 @@ class Assessment {
 
   factory Assessment.fromJson(Map<String, dynamic> json) => Assessment(
         id: json['_id']?.toString(),
-        categoryId: json['category_id']?.toString() ?? '',
+        categoryId: json['categoryID']?.toString() ?? '',
         title: json['title']?.toString() ?? '---',
         visibility: json['visibility']?.toString() ?? 'private',
-        timeWindowMinutes: json['time_window'] is int
-            ? json['time_window']
-            : int.tryParse(json['time_window']?.toString() ?? '') ?? 0,
+        timeWindowMinutes: json['timeWindow'] is int
+            ? json['timeWindow']
+            : int.tryParse(json['timeWindow']?.toString() ?? '') ?? 0,
         status: json['status']?.toString() ?? 'active',
         deadline: json['deadline'] != null
             ? DateTime.tryParse(json['deadline'].toString())
             : null,
-        createdAt: json['created_at'] != null
-            ? DateTime.tryParse(json['created_at'].toString())
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt'].toString())
             : null,
       );
 
   Map<String, dynamic> toJson() => {
         '_id': id ?? '0',
-        'category_id': categoryId,
+        'categoryID': categoryId,
         'title': title,
         'visibility': visibility,
-        'time_window': timeWindowMinutes,
+        'timeWindow': timeWindowMinutes,
         'status': status,
         'deadline': deadline?.toUtc().toIso8601String(),
-        'created_at': createdAt?.toUtc().toIso8601String(),
+        'createdAt': createdAt?.toUtc().toIso8601String(),
       };
 
   Map<String, dynamic> toJsonNoId() => {
-        'category_id': categoryId,
+        'categoryID': categoryId,
         'title': title,
         'visibility': visibility,
-        'time_window': timeWindowMinutes,
+        'timeWindow': timeWindowMinutes,
         'status': status,
         'deadline': deadline?.toUtc().toIso8601String(),
-        'created_at': createdAt?.toUtc().toIso8601String(),
+        'createdAt': createdAt?.toUtc().toIso8601String(),
       };
 
   @override

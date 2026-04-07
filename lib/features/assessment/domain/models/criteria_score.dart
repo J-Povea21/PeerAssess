@@ -18,8 +18,8 @@ class CriteriaScore {
 
   factory CriteriaScore.fromJson(Map<String, dynamic> json) => CriteriaScore(
         id: json['_id']?.toString(),
-        evaluationId: json['evaluation_id']?.toString(),
-        criteriaId: json['criteria_id']?.toString() ?? '',
+        evaluationId: json['evaluationID']?.toString(),
+        criteriaId: json['criteriaID']?.toString() ?? '',
         score: (json['score'] is num)
             ? (json['score'] as num).toDouble()
             : double.tryParse(json['score']?.toString() ?? '') ?? 0.0,
@@ -27,14 +27,14 @@ class CriteriaScore {
 
   Map<String, dynamic> toJson() => {
         '_id': id ?? '0',
-        'evaluation_id': evaluationId,
-        'criteria_id': criteriaId,
+        'evaluationID': evaluationId,
+        'criteriaID': criteriaId,
         'score': score,
       };
 
   Map<String, dynamic> toJsonNoId() => {
-        'evaluation_id': evaluationId,
-        'criteria_id': criteriaId,
+        'evaluationID': evaluationId,
+        'criteriaID': criteriaId,
         'score': score,
       };
 

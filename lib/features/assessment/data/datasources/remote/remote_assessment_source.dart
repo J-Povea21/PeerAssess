@@ -29,10 +29,10 @@ class RemoteAssessmentSource with UiLoggy implements IAssessmentSource {
 
     loggy.info('RemoteAssessmentSource: creating "${assessment.title}"');
 
-    await _robleDb.insert('assessments', [assessment.toJsonNoId()]);
+    await _robleDb.insert('Assessments', [assessment.toJsonNoId()]);
 
     await _robleDb
-        .insert('criteria', criteria.map((c) => c.toJsonNoId()).toList());
+        .insert('Criteria', criteria.map((c) => c.toJsonNoId()).toList());
 
     return true;
   }
@@ -50,7 +50,7 @@ class RemoteAssessmentSource with UiLoggy implements IAssessmentSource {
     // 2. For each category, fetch assessments and keep only active ones
     final List<Assessment> result = [];
     for (final catId in catIds) {
-      final rows = await _robleDb.read('assessments', {'category_id': catId});
+      final rows = await _robleDb.read('Assessments', {'categoryID': catId});
       for (final row in rows) {
         final assessment = Assessment.fromJson(row);
         if (assessment.status == 'active') {
@@ -69,7 +69,7 @@ class RemoteAssessmentSource with UiLoggy implements IAssessmentSource {
     loggy.info('RemoteAssessmentSource: cancelAssessment id=$assessmentId');
 
     await _robleDb
-        .update('assessments', '_id', assessmentId, {'status': 'cancelled'});
+        .update('Assessments', '_id', assessmentId, {'status': 'cancelled'});
     return true;
   }
 }

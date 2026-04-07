@@ -104,36 +104,36 @@ void main() {
 
   final activeAssessment = {
     '_id': 'assess-001',
-    'category_id': 'cat-001',
+    'categoryID': 'cat-001',
     'title': 'Sprint 1 Review',
     'visibility': 'public',
-    'time_window': 120,
+    'timeWindow': 120,
     'status': 'active',
     'deadline': futureDeadline,
-    'created_at': serverTime.toIso8601String(),
+    'createdAt': serverTime.toIso8601String(),
   };
 
   final expiredAssessment = {
     '_id': 'assess-expired',
-    'category_id': 'cat-001',
+    'categoryID': 'cat-001',
     'title': 'Expired Review',
     'visibility': 'public',
-    'time_window': 60,
+    'timeWindow': 60,
     'status': 'active',
     'deadline': pastDeadline,
-    'created_at':
+    'createdAt':
         serverTime.subtract(const Duration(hours: 2)).toIso8601String(),
   };
 
   final cancelledAssessment = {
     '_id': 'assess-cancelled',
-    'category_id': 'cat-001',
+    'categoryID': 'cat-001',
     'title': 'Cancelled Review',
     'visibility': 'public',
-    'time_window': 120,
+    'timeWindow': 120,
     'status': 'cancelled',
     'deadline': futureDeadline,
-    'created_at': serverTime.toIso8601String(),
+    'createdAt': serverTime.toIso8601String(),
   };
 
   /// DB rows for a scenario where student-001 is in group grp-001.
@@ -152,18 +152,18 @@ void main() {
           {'_id': 'gm-002', 'groupID': 'grp-001', 'studentID': 'student-002'},
           {'_id': 'gm-003', 'groupID': 'grp-001', 'studentID': 'student-003'},
         ],
-        'assessments': [activeAssessment],
-        'evaluations': evaluations ?? [],
-        'criteria': [
+        'Assessments': [activeAssessment],
+        'Evaluations': evaluations ?? [],
+        'Criteria': [
           {
             '_id': 'crit-001',
-            'assessment_id': 'assess-001',
+            'assessmentID': 'assess-001',
             'name': 'Puntualidad',
             'weight': 1.0,
           },
           {
             '_id': 'crit-002',
-            'assessment_id': 'assess-001',
+            'assessmentID': 'assess-001',
             'name': 'Contribuciones',
             'weight': 1.0,
           },
@@ -192,7 +192,7 @@ void main() {
       stubServerTime();
       stubReads({
         ...standardDbState(),
-        'assessments': [expiredAssessment],
+        'Assessments': [expiredAssessment],
       });
 
       final pending = await repository.getPendingAssessments('student-001');
@@ -204,7 +204,7 @@ void main() {
       stubServerTime();
       stubReads({
         ...standardDbState(),
-        'assessments': [cancelledAssessment],
+        'Assessments': [cancelledAssessment],
       });
 
       final pending = await repository.getPendingAssessments('student-001');
@@ -217,19 +217,19 @@ void main() {
       stubReads(standardDbState(evaluations: [
         {
           '_id': 'eval-001',
-          'assessment_id': 'assess-001',
-          'evaluator_id': 'student-001',
-          'evaluated_id': 'student-002',
-          'total_score': 4.0,
-          'submitted_at': serverTime.toIso8601String(),
+          'assessmentID': 'assess-001',
+          'evaluatorID': 'student-001',
+          'evaluatedID': 'student-002',
+          'totalScore': 4.0,
+          'submittedAt': serverTime.toIso8601String(),
         },
         {
           '_id': 'eval-002',
-          'assessment_id': 'assess-001',
-          'evaluator_id': 'student-001',
-          'evaluated_id': 'student-003',
-          'total_score': 3.5,
-          'submitted_at': serverTime.toIso8601String(),
+          'assessmentID': 'assess-001',
+          'evaluatorID': 'student-001',
+          'evaluatedID': 'student-003',
+          'totalScore': 3.5,
+          'submittedAt': serverTime.toIso8601String(),
         },
       ]));
 
@@ -245,18 +245,18 @@ void main() {
 
       final otherCourseAssessment = {
         '_id': 'assess-other',
-        'category_id': 'cat-999', // different category, different course
+        'categoryID': 'cat-999', // different category, different course
         'title': 'Other Course Review',
         'visibility': 'public',
-        'time_window': 120,
+        'timeWindow': 120,
         'status': 'active',
         'deadline': futureDeadline,
-        'created_at': serverTime.toIso8601String(),
+        'createdAt': serverTime.toIso8601String(),
       };
 
       stubReads({
         ...standardDbState(),
-        'assessments': [activeAssessment, otherCourseAssessment],
+        'Assessments': [activeAssessment, otherCourseAssessment],
       });
 
       final pending = await repository.getPendingAssessments('student-001');
@@ -302,17 +302,17 @@ void main() {
 
       // ── First POST → evaluations table ──
       final eBody = jsonDecode(bodies[0] as String);
-      expect(eBody['tableName'], 'evaluations');
+      expect(eBody['tableName'], 'Evaluations');
       final eRec = eBody['records'][0] as Map<String, dynamic>;
-      expect(eRec['assessment_id'], 'assess-001');
-      expect(eRec['evaluator_id'], 'student-001');
-      expect(eRec['evaluated_id'], 'student-002');
-      final submittedAt = DateTime.parse(eRec['submitted_at'] as String);
+      expect(eRec['assessmentID'], 'assess-001');
+      expect(eRec['evaluatorID'], 'student-001');
+      expect(eRec['evaluatedID'], 'student-002');
+      final submittedAt = DateTime.parse(eRec['submittedAt'] as String);
       expect(submittedAt.isUtc, isTrue);
 
       // ── Second POST → criteria_scores table ──
       final sBody = jsonDecode(bodies[1] as String);
-      expect(sBody['tableName'], 'criteria_scores');
+      expect(sBody['tableName'], 'CriteriaScores');
       final sRecs = sBody['records'] as List;
       expect(sRecs.length, 2);
       expect(sRecs[0]['score'], 5.0);
@@ -324,7 +324,7 @@ void main() {
       stubServerTime(); // server time is 12:00
       stubReads({
         ...standardDbState(),
-        'assessments': [expiredAssessment], // deadline already passed
+        'Assessments': [expiredAssessment], // deadline already passed
       });
 
       final result = await repository.submitEvaluation(
@@ -349,11 +349,11 @@ void main() {
       stubReads(standardDbState(evaluations: [
         {
           '_id': 'eval-existing',
-          'assessment_id': 'assess-001',
-          'evaluator_id': 'student-001',
-          'evaluated_id': 'student-002',
-          'total_score': 4.0,
-          'submitted_at': serverTime.toIso8601String(),
+          'assessmentID': 'assess-001',
+          'evaluatorID': 'student-001',
+          'evaluatedID': 'student-002',
+          'totalScore': 4.0,
+          'submittedAt': serverTime.toIso8601String(),
         },
       ]));
 
@@ -537,29 +537,29 @@ void main() {
           {'_id': 'gm-002', 'groupID': 'grp-001', 'studentID': 'student-002'},
           {'_id': 'gm-003', 'groupID': 'grp-001', 'studentID': 'student-003'},
         ],
-        'evaluations': [
+        'Evaluations': [
           // student-002 evaluated student-001
           {
             '_id': 'eval-001',
-            'assessment_id': 'assess-001',
-            'evaluator_id': 'student-002',
-            'evaluated_id': 'student-001',
-            'total_score': 4.0,
-            'submitted_at': serverTime.toIso8601String(),
+            'assessmentID': 'assess-001',
+            'evaluatorID': 'student-002',
+            'evaluatedID': 'student-001',
+            'totalScore': 4.0,
+            'submittedAt': serverTime.toIso8601String(),
           },
           // student-003 did NOT submit (missed deadline) → denominator = 1 for student-001
         ],
-        'criteria_scores': [
+        'CriteriaScores': [
           {
             '_id': 'cs-001',
-            'evaluation_id': 'eval-001',
-            'criteria_id': 'crit-001',
+            'evaluationID': 'eval-001',
+            'criteriaID': 'crit-001',
             'score': 5.0,
           },
           {
             '_id': 'cs-002',
-            'evaluation_id': 'eval-001',
-            'criteria_id': 'crit-002',
+            'evaluationID': 'eval-001',
+            'criteriaID': 'crit-002',
             'score': 3.0,
           },
         ],

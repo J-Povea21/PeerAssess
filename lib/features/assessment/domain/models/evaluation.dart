@@ -17,32 +17,32 @@ class Evaluation {
 
   factory Evaluation.fromJson(Map<String, dynamic> json) => Evaluation(
         id: json['_id']?.toString(),
-        assessmentId: json['assessment_id']?.toString() ?? '',
-        evaluatorId: json['evaluator_id']?.toString() ?? '',
-        evaluatedId: json['evaluated_id']?.toString() ?? '',
-        totalScore: (json['total_score'] is num)
-            ? (json['total_score'] as num).toDouble()
-            : double.tryParse(json['total_score']?.toString() ?? ''),
-        submittedAt: json['submitted_at'] != null
-            ? DateTime.tryParse(json['submitted_at'].toString())
+        assessmentId: json['assessmentID']?.toString() ?? '',
+        evaluatorId: json['evaluatorID']?.toString() ?? '',
+        evaluatedId: json['evaluatedID']?.toString() ?? '',
+        totalScore: (json['totalScore'] is num)
+            ? (json['totalScore'] as num).toDouble()
+            : double.tryParse(json['totalScore']?.toString() ?? ''),
+        submittedAt: json['submittedAt'] != null
+            ? DateTime.tryParse(json['submittedAt'].toString())
             : null,
       );
 
   Map<String, dynamic> toJson() => {
         '_id': id ?? '0',
-        'assessment_id': assessmentId,
-        'evaluator_id': evaluatorId,
-        'evaluated_id': evaluatedId,
-        'total_score': totalScore,
-        'submitted_at': submittedAt?.toUtc().toIso8601String(),
+        'assessmentID': assessmentId,
+        'evaluatorID': evaluatorId,
+        'evaluatedID': evaluatedId,
+        'totalScore': totalScore,
+        'submittedAt': submittedAt?.toUtc().toIso8601String(),
       };
 
   Map<String, dynamic> toJsonNoId() => {
-        'assessment_id': assessmentId,
-        'evaluator_id': evaluatorId,
-        'evaluated_id': evaluatedId,
-        'total_score': totalScore,
-        'submitted_at': submittedAt?.toUtc().toIso8601String(),
+        'assessmentID': assessmentId,
+        'evaluatorID': evaluatorId,
+        'evaluatedID': evaluatedId,
+        'totalScore': totalScore,
+        'submittedAt': submittedAt?.toUtc().toIso8601String(),
       };
 
   @override

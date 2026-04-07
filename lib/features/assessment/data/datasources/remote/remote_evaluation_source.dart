@@ -54,7 +54,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
     final List<Assessment> active = [];
     for (final catId in categoryIds) {
       final rows =
-          await _robleDb.read('assessments', {'category_id': catId});
+          await _robleDb.read('Assessments', {'categoryID': catId});
       for (final row in rows) {
         final a = Assessment.fromJson(row);
         if (a.status == 'active' &&
@@ -69,7 +69,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
     // 5. Fetch student's existing evaluations
     final evalRows =
-        await _robleDb.read('evaluations', {'evaluator_id': studentId});
+        await _robleDb.read('Evaluations', {'evaluatorID': studentId});
 
     // 6. Keep only assessments where at least one peer is still unevaluated
     final List<Assessment> pending = [];
@@ -79,8 +79,8 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
       final peers = groupPeers[groupId] ?? [];
       final evaluatedPeers = evalRows
-          .where((e) => e['assessment_id'] == assessment.id)
-          .map((e) => e['evaluated_id'].toString())
+          .where((e) => e['assessmentID'] == assessment.id)
+          .map((e) => e['evaluatedID'].toString())
           .toSet();
 
       if (!peers.every((p) => evaluatedPeers.contains(p))) {
@@ -107,7 +107,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
     final serverTime = await _robleDb.getServerTime();
 
     final assessmentRows = await _robleDb
-        .read('assessments', {'_id': evaluation.assessmentId});
+        .read('Assessments', {'_id': evaluation.assessmentId});
     if (assessmentRows.isEmpty) return false;
     final assessment = Assessment.fromJson(assessmentRows.first);
 
@@ -118,10 +118,10 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
     }
 
     // ── Duplicate check ──
-    final existingEvals = await _robleDb.read('evaluations', {
-      'assessment_id': evaluation.assessmentId,
-      'evaluator_id': evaluation.evaluatorId,
-      'evaluated_id': evaluation.evaluatedId,
+    final existingEvals = await _robleDb.read('Evaluations', {
+      'assessmentID': evaluation.assessmentId,
+      'evaluatorID': evaluation.evaluatorId,
+      'evaluatedID': evaluation.evaluatedId,
     });
     if (existingEvals.isNotEmpty) return false;
 
@@ -149,7 +149,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
     // ── Criteria completeness check ──
     final criteriaRows = await _robleDb
-        .read('criteria', {'assessment_id': evaluation.assessmentId});
+        .read('Criteria', {'assessmentID': evaluation.assessmentId});
     if (scores.length != criteriaRows.length) return false;
 
     // ── Compute total score and timestamp ──
@@ -163,11 +163,11 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
         '${evaluation.evaluatorId} → ${evaluation.evaluatedId}');
 
     // ── POST evaluation ──
-    await _robleDb.insert('evaluations', [evaluation.toJsonNoId()]);
+    await _robleDb.insert('Evaluations', [evaluation.toJsonNoId()]);
 
     // ── POST criteria scores ──
     await _robleDb.insert(
-        'criteria_scores', scores.map((s) => s.toJsonNoId()).toList());
+        'CriteriaScores', scores.map((s) => s.toJsonNoId()).toList());
 
     return true;
   }
@@ -187,20 +187,20 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
     // 2. Evaluations for this assessment
     final evalRows =
-        await _robleDb.read('evaluations', {'assessment_id': assessmentId});
+        await _robleDb.read('Evaluations', {'assessmentID': assessmentId});
 
     // 3. Criteria scores for those evaluations
     final evalIds = evalRows.map((r) => r['_id'].toString()).toSet();
-    final allScoreRows = await _robleDb.read('criteria_scores');
+    final allScoreRows = await _robleDb.read('CriteriaScores');
     final scoreRows = allScoreRows
-        .where((r) => evalIds.contains(r['evaluation_id'].toString()))
+        .where((r) => evalIds.contains(r['evaluationID'].toString()))
         .toList();
 
     // 4. Compute per-student results
     final List<StudentResult> results = [];
     for (final memberId in memberIds) {
       final memberEvals = evalRows
-          .where((e) => e['evaluated_id'].toString() == memberId)
+          .where((e) => e['evaluatedID'].toString() == memberId)
           .toList();
 
       if (memberEvals.isEmpty) {
@@ -216,12 +216,12 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
       final memberEvalIds =
           memberEvals.map((e) => e['_id'].toString()).toSet();
       final memberScores = scoreRows
-          .where((s) => memberEvalIds.contains(s['evaluation_id'].toString()))
+          .where((s) => memberEvalIds.contains(s['evaluationID'].toString()))
           .toList();
 
       final Map<String, List<double>> byCriteria = {};
       for (final s in memberScores) {
-        final cId = s['criteria_id'].toString();
+        final cId = s['criteriaID'].toString();
         final val = (s['score'] as num).toDouble();
         byCriteria.putIfAbsent(cId, () => []).add(val);
       }
@@ -234,7 +234,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
       // Overall average = mean of evaluation total_scores
       final totalSum = memberEvals.fold<double>(
-          0, (sum, e) => sum + (e['total_score'] as num).toDouble());
+          0, (sum, e) => sum + (e['totalScore'] as num).toDouble());
 
       results.add(StudentResult(
         evaluatedId: memberId,

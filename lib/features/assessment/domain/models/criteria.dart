@@ -13,7 +13,7 @@ class Criteria {
 
   factory Criteria.fromJson(Map<String, dynamic> json) => Criteria(
         id: json['_id']?.toString(),
-        assessmentId: json['assessment_id']?.toString(),
+        assessmentId: json['assessmentID']?.toString(),
         name: json['name']?.toString() ?? '---',
         weight: (json['weight'] is num)
             ? (json['weight'] as num).toDouble()
@@ -22,13 +22,13 @@ class Criteria {
 
   Map<String, dynamic> toJson() => {
         '_id': id ?? '0',
-        'assessment_id': assessmentId,
+        'assessmentID': assessmentId,
         'name': name,
         'weight': weight,
       };
 
   Map<String, dynamic> toJsonNoId() => {
-        'assessment_id': assessmentId,
+        'assessmentID': assessmentId,
         'name': name,
         'weight': weight,
       };

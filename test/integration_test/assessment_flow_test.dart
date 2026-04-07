@@ -81,26 +81,26 @@ void main() {
 
   final activeAssessmentRow = {
     '_id': 'assess-001',
-    'category_id': 'cat-001',
+    'categoryID': 'cat-001',
     'title': 'Sprint 1 Review',
     'visibility': 'public',
-    'time_window': 120,
+    'timeWindow': 120,
     'status': 'active',
     'deadline':
         serverTime.add(const Duration(minutes: 120)).toIso8601String(),
-    'created_at': serverTime.toIso8601String(),
+    'createdAt': serverTime.toIso8601String(),
   };
 
   final cancelledAssessmentRow = {
     '_id': 'assess-002',
-    'category_id': 'cat-001',
+    'categoryID': 'cat-001',
     'title': 'Cancelled One',
     'visibility': 'private',
-    'time_window': 60,
+    'timeWindow': 60,
     'status': 'cancelled',
     'deadline':
         serverTime.add(const Duration(minutes: 60)).toIso8601String(),
-    'created_at': serverTime.toIso8601String(),
+    'createdAt': serverTime.toIso8601String(),
   };
 
   // ═════════════════════════════════════════════════════════════════
@@ -139,13 +139,13 @@ void main() {
 
       // ── First POST → assessments table ──
       final aBody = jsonDecode(bodies[0] as String);
-      expect(aBody['tableName'], 'assessments');
+      expect(aBody['tableName'], 'Assessments');
       final rec = aBody['records'][0] as Map<String, dynamic>;
       expect(rec['status'], 'active');
-      expect(rec['category_id'], 'cat-001');
+      expect(rec['categoryID'], 'cat-001');
       expect(rec['title'], 'Sprint 1 Review');
       expect(rec['visibility'], 'public');
-      expect(rec['time_window'], 120);
+      expect(rec['timeWindow'], 120);
 
       // Deadline = server time + 120 min, stored as UTC ISO-8601
       final deadline = DateTime.parse(rec['deadline'] as String);
@@ -154,7 +154,7 @@ void main() {
 
       // ── Second POST → criteria table ──
       final cBody = jsonDecode(bodies[1] as String);
-      expect(cBody['tableName'], 'criteria');
+      expect(cBody['tableName'], 'Criteria');
       final cRecs = cBody['records'] as List;
       expect(cRecs.length, 2);
       expect(cRecs[0]['name'], 'Puntualidad');
@@ -255,7 +255,7 @@ void main() {
         'GroupCategories': [
           {'_id': 'cat-001', 'courseID': 'course-001', 'name': 'Sprint 1'},
         ],
-        'assessments': [activeAssessmentRow, cancelledAssessmentRow],
+        'Assessments': [activeAssessmentRow, cancelledAssessmentRow],
       });
 
       final list = await repository.getAssessmentsByCourse('course-001');
@@ -271,7 +271,7 @@ void main() {
         'GroupCategories': [
           {'_id': 'cat-001', 'courseID': 'course-001', 'name': 'Sprint 1'},
         ],
-        'assessments': [cancelledAssessmentRow],
+        'Assessments': [cancelledAssessmentRow],
       });
 
       final list = await repository.getAssessmentsByCourse('course-001');
@@ -297,7 +297,7 @@ void main() {
         encoding: anyNamed('encoding'),
       )).captured.first as String);
 
-      expect(body['tableName'], 'assessments');
+      expect(body['tableName'], 'Assessments');
       expect(body['idColumn'], '_id');
       expect(body['idValue'], 'assess-001');
       expect(body['updates']['status'], 'cancelled');
