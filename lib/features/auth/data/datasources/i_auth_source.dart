@@ -1,4 +1,4 @@
-import '../../domain/models/user.dart';
+import '../../../../core/models/user.dart';
 
 abstract class IAuthSource {
   Future<User?> login(String email, String password);
