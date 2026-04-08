@@ -37,6 +37,8 @@ import 'features/assessment/data/repositories/assessment_repository.dart';
 import 'features/assessment/data/repositories/evaluation_repository.dart';
 import 'features/assessment/domain/repositories/i_assessment_repository.dart';
 import 'features/assessment/domain/repositories/i_evaluation_repository.dart';
+import 'features/assessment/ui/viewmodels/assessment_controller.dart';
+import 'features/assessment/ui/viewmodels/evaluation_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +86,10 @@ void main() async {
   Get.put<IEvaluationSource>(
       RemoteEvaluationSource(robleDb, sessionService));
   Get.put<IEvaluationRepository>(EvaluationRepository(Get.find()));
+
+  // Assessment & Evaluation controllers
+  Get.put(AssessmentController(Get.find()));
+  Get.put(EvaluationController(Get.find()));
 
   runApp(const MyApp());
 }
