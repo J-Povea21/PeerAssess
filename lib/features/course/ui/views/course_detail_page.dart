@@ -14,8 +14,6 @@ class CourseDetailPage extends StatelessWidget {
 
   const CourseDetailPage({super.key, required this.course});
 
-  /// Returns the live version of this course from the controller, or the
-  /// static one passed at navigation time as fallback.
   Course _liveCourse(CourseController ctrl) {
     return ctrl.courses.firstWhereOrNull((c) => c.id == course.id) ?? course;
   }
@@ -23,6 +21,8 @@ class CourseDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final courseCtrl = Get.find<CourseController>();
+    final authController = Get.find<AuthController>();
+    final isTeacher = authController.currentUser?.role.name == 'teacher';
 
     return DefaultTabController(
       length: 4,
@@ -58,7 +58,7 @@ class CourseDetailPage extends StatelessWidget {
           ),
           child: TabBarView(
             children: [
-              _buildInfoTab(context, courseCtrl),
+              _buildInfoTab(context, courseCtrl, isTeacher),
               _buildCategoriesTab(),
               _buildAssessmentsTab(),
               _buildMembersTab(),
@@ -69,7 +69,8 @@ class CourseDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTab(BuildContext context, CourseController courseCtrl) {
+  Widget _buildInfoTab(
+      BuildContext context, CourseController courseCtrl, bool isTeacher) {
     return Obx(() {
       final c = _liveCourse(courseCtrl);
       return SingleChildScrollView(
@@ -79,7 +80,7 @@ class CourseDetailPage extends StatelessWidget {
           children: [
             _buildInfoCard(c),
             const SizedBox(height: 20),
-            _buildEnrollmentCard(context, c),
+            _buildEnrollmentCard(context, c, isTeacher),
             const SizedBox(height: 20),
             _buildStatsCards(c),
           ],
@@ -106,84 +107,64 @@ class CourseDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.beige,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.book_rounded,
-                    color: AppColors.olive, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      c.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    Text(
-                      'Semestre ${c.semester}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: statusColor,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.beige,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child:
+                const Icon(Icons.book_rounded, color: AppColors.olive, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  c.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textDark,
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (c.teacherName != null) ...[
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.person, size: 18, color: AppColors.textMuted),
-                const SizedBox(width: 8),
                 Text(
-                  c.teacherName!,
+                  'Semestre ${c.semester}',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: AppColors.textMuted,
                   ),
                 ),
               ],
             ),
-          ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              statusText,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: statusColor,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildEnrollmentCard(BuildContext context, Course c) {
+  Widget _buildEnrollmentCard(
+      BuildContext context, Course c, bool isTeacher) {
+    if (!isTeacher) return const SizedBox.shrink();
     if (c.enrollmentCode == null) return const SizedBox.shrink();
 
     return Container(
@@ -215,8 +196,8 @@ class CourseDetailPage extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.beige.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(10),
@@ -244,15 +225,11 @@ class CourseDetailPage extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.copy_rounded, color: AppColors.olive),
+                  icon:
+                      const Icon(Icons.copy_rounded, color: AppColors.olive),
                 );
               }),
             ],
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Comparte este código con tus estudiantes para que se inscriban',
-            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
         ],
       ),
