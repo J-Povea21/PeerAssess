@@ -11,8 +11,10 @@ import 'package:get/get.dart';
 // Barrel export — import this single file in every test
 // ---------------------------------------------------------------------------
 
+export 'mock_assessment_controller.dart';
 export 'mock_auth_controller.dart';
 export 'mock_course_controller.dart';
+export 'mock_evaluation_controller.dart';
 export 'mock_group_controller.dart';
 export 'mock_http_client.dart';
 

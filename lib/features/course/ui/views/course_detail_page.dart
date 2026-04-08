@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../assessment/ui/views/assessment_list_page.dart';
 import '../../../group/ui/views/category_list_page.dart';
 import '../../domain/models/course.dart';
 import '../viewmodels/course_controller.dart';
@@ -24,7 +25,7 @@ class CourseDetailPage extends StatelessWidget {
     final courseCtrl = Get.find<CourseController>();
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Obx(() => Text(_liveCourse(courseCtrl).name)),
@@ -38,6 +39,7 @@ class CourseDetailPage extends StatelessWidget {
             tabs: [
               Tab(text: 'Info'),
               Tab(text: 'Categorías'),
+              Tab(text: 'Evaluaciones'),
               Tab(text: 'Miembros'),
             ],
           ),
@@ -58,6 +60,7 @@ class CourseDetailPage extends StatelessWidget {
             children: [
               _buildInfoTab(context, courseCtrl),
               _buildCategoriesTab(),
+              _buildAssessmentsTab(),
               _buildMembersTab(),
             ],
           ),
@@ -326,6 +329,10 @@ class CourseDetailPage extends StatelessWidget {
 
   Widget _buildCategoriesTab() {
     return CategoryListPage(courseId: course.id!);
+  }
+
+  Widget _buildAssessmentsTab() {
+    return AssessmentListPage(courseId: course.id!);
   }
 
   Widget _buildMembersTab() {

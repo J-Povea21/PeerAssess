@@ -15,13 +15,25 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
   RemoteEvaluationSource(this._robleDb, this._session);
 
+  /// Resolves the Roble user ID by email. The auth system and CSV import
+  /// may assign different IDs — the email is the stable identifier.
+  Future<String?> _resolveStudentId() async {
+    final email = _session.cachedUser?.email;
+    if (email == null) return null;
+    final rows = await _robleDb.read('Users', {'mail': email});
+    if (rows.isEmpty) return null;
+    return rows.first['_id']?.toString();
+  }
+
   @override
   Future<List<Assessment>> getPendingAssessments(String studentId) async {
+    // Resolve by email to handle auth/CSV ID mismatch
+    final resolvedId = await _resolveStudentId() ?? studentId;
     final serverTime = await _robleDb.getServerTime();
 
     // 1. Find student's groups via GroupMembers
     final memberRows =
-        await _robleDb.read('GroupMembers', {'studentID': studentId});
+        await _robleDb.read('GroupMembers', {'studentID': resolvedId});
     if (memberRows.isEmpty) return [];
 
     // 2. For each group, resolve its category and peer list
@@ -41,7 +53,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
           await _robleDb.read('GroupMembers', {'groupID': groupId});
       groupPeers[groupId] = allMembers
           .map((m) => m['studentID'].toString())
-          .where((id) => id != studentId)
+          .where((id) => id != resolvedId)
           .toList();
     }
 
@@ -69,7 +81,7 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
 
     // 5. Fetch student's existing evaluations
     final evalRows =
-        await _robleDb.read('Evaluations', {'evaluatorID': studentId});
+        await _robleDb.read('Evaluations', {'evaluatorID': resolvedId});
 
     // 6. Keep only assessments where at least one peer is still unevaluated
     final List<Assessment> pending = [];
