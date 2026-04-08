@@ -33,7 +33,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-          find.widgetWithText(ElevatedButton, 'Importar CSV'), findsOneWidget);
+        find.ancestor(
+          of: find.text('Importar CSV'),
+          matching: find.bySubtype<ElevatedButton>(),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows loading spinner', (tester) async {
