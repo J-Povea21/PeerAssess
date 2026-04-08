@@ -29,6 +29,17 @@ import 'features/group/data/repositories/group_repository.dart';
 import 'features/group/domain/repositories/i_group_repository.dart';
 import 'features/group/ui/viewmodels/group_controller.dart';
 
+import 'features/assessment/data/datasources/i_assessment_source.dart';
+import 'features/assessment/data/datasources/i_evaluation_source.dart';
+import 'features/assessment/data/datasources/remote/remote_assessment_source.dart';
+import 'features/assessment/data/datasources/remote/remote_evaluation_source.dart';
+import 'features/assessment/data/repositories/assessment_repository.dart';
+import 'features/assessment/data/repositories/evaluation_repository.dart';
+import 'features/assessment/domain/repositories/i_assessment_repository.dart';
+import 'features/assessment/domain/repositories/i_evaluation_repository.dart';
+import 'features/assessment/ui/viewmodels/assessment_controller.dart';
+import 'features/assessment/ui/viewmodels/evaluation_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
@@ -66,6 +77,19 @@ void main() async {
   Get.put<IGroupSource>(RemoteGroupSource(robleDb));
   Get.put<IGroupRepository>(GroupRepository(Get.find()));
   Get.put(GroupController(Get.find()));
+
+  // Assessment
+  Get.put<IAssessmentSource>(RemoteAssessmentSource(robleDb));
+  Get.put<IAssessmentRepository>(AssessmentRepository(Get.find()));
+
+  // Evaluation
+  Get.put<IEvaluationSource>(
+      RemoteEvaluationSource(robleDb, sessionService));
+  Get.put<IEvaluationRepository>(EvaluationRepository(Get.find()));
+
+  // Assessment & Evaluation controllers
+  Get.put(AssessmentController(Get.find()));
+  Get.put(EvaluationController(Get.find()));
 
   runApp(const MyApp());
 }
