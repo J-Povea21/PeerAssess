@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../assessment/ui/views/assessment_list_page.dart';
+import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../../group/ui/views/category_list_page.dart';
 import '../../domain/models/course.dart';
 import '../viewmodels/course_controller.dart';

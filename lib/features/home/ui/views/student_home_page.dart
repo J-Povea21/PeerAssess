@@ -2,6 +2,7 @@ import 'package:f_clean_template/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../analytics/ui/views/student_results_page.dart';
 import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../../course/domain/models/course.dart';
 import '../../../course/ui/viewmodels/course_controller.dart';
@@ -28,7 +29,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         children: const [
           _StudentDashboard(),
           CourseListPage(),
-          _ResultsPlaceholder(),
+          StudentResultsPage(),
           ProfilePage(),
         ],
       ),
@@ -453,38 +454,3 @@ class _StudentDashboardState extends State<_StudentDashboard> {
   }
 }
 
-class _ResultsPlaceholder extends StatelessWidget {
-  const _ResultsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.beige,
-            Colors.white,
-            AppColors.rose.withValues(alpha: 0.05),
-          ],
-        ),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.bar_chart_outlined,
-                size: 64, color: AppColors.textMuted),
-            SizedBox(height: 16),
-            Text('Resultados',
-                style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
-            SizedBox(height: 8),
-            Text('Próximamente',
-                style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
-          ],
-        ),
-      ),
-    );
-  }
-}

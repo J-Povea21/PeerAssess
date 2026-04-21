@@ -2,6 +2,7 @@ import 'package:f_clean_template/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../analytics/ui/views/teacher_analytics_page.dart';
 import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../../course/domain/models/course.dart';
 import '../../../course/ui/viewmodels/course_controller.dart';
@@ -28,7 +29,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
         children: const [
           _TeacherDashboard(),
           CourseListPage(),
-          _AnalyticsPlaceholder(),
+          TeacherAnalyticsPage(),
           ProfilePage(),
         ],
       ),
@@ -350,37 +351,3 @@ class _TeacherDashboardState extends State<_TeacherDashboard> {
   }
 }
 
-class _AnalyticsPlaceholder extends StatelessWidget {
-  const _AnalyticsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.beige,
-            Colors.white,
-            AppColors.rose.withValues(alpha: 0.05),
-          ],
-        ),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.analytics_outlined, size: 64, color: AppColors.textMuted),
-            SizedBox(height: 16),
-            Text('Analíticas',
-                style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
-            SizedBox(height: 8),
-            Text('Próximamente',
-                style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
-          ],
-        ),
-      ),
-    );
-  }
-}
