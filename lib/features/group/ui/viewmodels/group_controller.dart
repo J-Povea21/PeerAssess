@@ -18,9 +18,14 @@ class GroupController extends GetxController {
 
   Future<void> loadCategories(String courseId) async {
     logInfo('GroupController: Loading categories for course $courseId');
-    await Future.microtask(() => isLoading.value = true);
+
+    isLoading.value = true;
+
     try {
-      categories.value = await repository.getCategoriesByCourse(courseId);
+      // 🔥 SOLO cargar datos sin modificar estructura
+      categories.value =
+          await repository.getCategoriesByCourse(courseId);
+
     } catch (e) {
       logWarning('GroupController: Failed to load categories — $e');
       categories.clear();
@@ -32,26 +37,41 @@ class GroupController extends GetxController {
   Future<GroupCategory?> importCsv(String courseId, String csvContent) async {
     logInfo('GroupController: Importing CSV for course $courseId');
     isImporting.value = true;
+
     try {
       final category =
           await repository.importCategoryFromCsv(courseId, csvContent);
-      // Refresh the categories list
+
+      // recargar datos
       await loadCategories(courseId);
-      // Refresh course counts (students, categories)
+
+      // refrescar cursos
       Get.find<CourseController>().refreshCourses();
-      isImporting.value = false;
+
       return category;
     } catch (e) {
       logWarning('GroupController: CSV import failed — $e');
-      isImporting.value = false;
       return null;
+    } finally {
+      isImporting.value = false;
     }
   }
 
   Future<void> loadGroups(String categoryId) async {
     logInfo('GroupController: Loading groups for category $categoryId');
+
     isLoading.value = true;
-    selectedGroups.value = await repository.getGroupsByCategory(categoryId);
-    isLoading.value = false;
+
+    try {
+      // 🔥 SIN copyWith
+      selectedGroups.value =
+          await repository.getGroupsByCategory(categoryId);
+
+    } catch (e) {
+      logWarning('GroupController: Failed to load groups — $e');
+      selectedGroups.clear();
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

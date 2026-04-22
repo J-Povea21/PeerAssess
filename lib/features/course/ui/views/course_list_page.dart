@@ -42,13 +42,16 @@ class CourseListPage extends StatelessWidget {
           if (courseController.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (courseController.courses.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.book_outlined,
-                      size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
+                      size: 64,
+                      color:
+                          AppColors.textMuted.withValues(alpha: 0.5)),
                   const SizedBox(height: 16),
                   Text(
                     isTeacher
@@ -63,6 +66,7 @@ class CourseListPage extends StatelessWidget {
               ),
             );
           }
+
           return ListView.builder(
             padding: const EdgeInsets.all(20),
             itemCount: courseController.courses.length,
@@ -118,7 +122,8 @@ class CourseListPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
@@ -134,8 +139,10 @@ class CourseListPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      color:
+                          statusColor.withValues(alpha: 0.12),
+                      borderRadius:
+                          BorderRadius.circular(8),
                     ),
                     child: Text(
                       statusText,
@@ -148,22 +155,56 @@ class CourseListPage extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 6),
+
+             
               Text(
-                '${course.semester} | ${course.studentCount} estudiantes',
+                '${course.semester} | ${course.studentCount} estudiantes | ${course.categoryCount} categorías | ${course.evaluationCount} evaluaciones',
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textMuted,
                 ),
               ),
+
               const SizedBox(height: 10),
+if (!isTeacher && course.evaluationCount > 0)
+  Container(
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.orange.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.warning_amber_rounded,
+            size: 16, color: Colors.orange),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'Tienes ${course.evaluationCount} evaluaciones pendientes',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.orange,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
               Row(
                 children: [
                   _buildTag(
-                      '${course.categoryCount} categorías', AppColors.salmon),
+                    '${course.categoryCount} categorías',
+                    AppColors.salmon,
+                  ),
                   const SizedBox(width: 8),
-                  _buildTag('${course.evaluationCount} evaluaciones',
-                      AppColors.wheat),
+                  _buildTag(
+                    '${course.evaluationCount} evaluaciones',
+                    AppColors.wheat,
+                  ),
                 ],
               ),
             ],
@@ -175,7 +216,8 @@ class CourseListPage extends StatelessWidget {
 
   Widget _buildTag(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
@@ -190,4 +232,4 @@ class CourseListPage extends StatelessWidget {
       ),
     );
   }
-}
+} 
