@@ -5,6 +5,10 @@ import 'package:loggy/loggy.dart';
 
 import 'central.dart';
 import 'core/app_theme.dart';
+import 'core/cache/cache_service.dart';
+import 'core/cache/i_cache_service.dart';
+import 'core/cache/i_local_preferences.dart';
+import 'core/cache/local_preferences_shared.dart';
 import 'core/config/app_config.dart';
 import 'core/network/authenticated_client.dart';
 import 'core/network/roble_db_client.dart';
@@ -17,12 +21,14 @@ import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewmodels/auth_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
 
+import 'features/course/data/datasources/cache/cache_course_source.dart';
 import 'features/course/data/datasources/i_course_source.dart';
 import 'features/course/data/datasources/remote/remote_course_source.dart';
 import 'features/course/data/repositories/course_repository.dart';
 import 'features/course/domain/repositories/i_course_repository.dart';
 import 'features/course/ui/viewmodels/course_controller.dart';
 
+import 'features/group/data/datasources/cache/cache_group_source.dart';
 import 'features/group/data/datasources/i_group_source.dart';
 import 'features/group/data/datasources/remote/remote_group_source.dart';
 import 'features/group/data/repositories/group_repository.dart';
@@ -75,18 +81,28 @@ void main() async {
   final robleDb = RobleDbClient(Get.find<http.Client>());
   Get.put(robleDb);
 
+  // Cache infrastructure
+  Get.put<ILocalPreferences>(LocalPreferencesShared());
+  Get.put<ICacheService>(CacheService(Get.find<ILocalPreferences>()));
+
   // Auth
   Get.put<IAuthSource>(RemoteAuthSource(Get.find(), Get.find()));
   Get.put<IAuthRepository>(AuthRepository(Get.find()));
   Get.put(AuthController(Get.find()));
 
-  // Course (remote — persisted in Roble)
-  Get.put<ICourseSource>(RemoteCourseSource(robleDb, sessionService));
+  // Course (cache-aside: CacheCourseSource wraps RemoteCourseSource)
+  final remoteCourseSource = RemoteCourseSource(robleDb, sessionService);
+  Get.put<ICourseSource>(
+    CacheCourseSource(remoteCourseSource, Get.find<ICacheService>(), sessionService),
+  );
   Get.put<ICourseRepository>(CourseRepository(Get.find<ICourseSource>()));
   Get.put(CourseController(Get.find()));
 
-  // Group (remote — persisted in Roble)
-  Get.put<IGroupSource>(RemoteGroupSource(robleDb));
+  // Group (cache-aside: CacheGroupSource wraps RemoteGroupSource)
+  final remoteGroupSource = RemoteGroupSource(robleDb);
+  Get.put<IGroupSource>(
+    CacheGroupSource(remoteGroupSource, Get.find<ICacheService>()),
+  );
   Get.put<IGroupRepository>(GroupRepository(Get.find()));
   Get.put(GroupController(Get.find()));
 
