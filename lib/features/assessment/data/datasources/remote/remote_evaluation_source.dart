@@ -175,7 +175,42 @@ class RemoteEvaluationSource with UiLoggy implements IEvaluationSource {
         '${evaluation.evaluatorId} → ${evaluation.evaluatedId}');
 
     // ── POST evaluation ──
-    await _robleDb.insert('Evaluations', [evaluation.toJsonNoId()]);
+    //
+    // We need the server-assigned `_id` before we can link criteria scores
+    // back to this evaluation. The insert endpoint echoes the inserted rows
+    // in `{ inserted: [...] }` — we pull the new id from there. If the
+    // server happens to omit it (older Roble deployments have been observed
+    // to), we fall back to a read-by-composite-key lookup so we never
+    // silently orphan the scores.
+    final insertResult =
+        await _robleDb.insert('Evaluations', [evaluation.toJsonNoId()]);
+    final inserted = (insertResult['inserted'] as List?) ?? const [];
+
+    String? evaluationId;
+    if (inserted.isNotEmpty && inserted.first is Map) {
+      evaluationId =
+          (inserted.first as Map)['_id']?.toString();
+    }
+    if (evaluationId == null || evaluationId.isEmpty) {
+      final lookup = await _robleDb.read('Evaluations', {
+        'assessmentID': evaluation.assessmentId,
+        'evaluatorID': evaluation.evaluatorId,
+        'evaluatedID': evaluation.evaluatedId,
+      });
+      if (lookup.isEmpty) {
+        loggy.warning(
+            'RemoteEvaluationSource: could not resolve evaluation _id '
+            'after insert — skipping criteria score persistence');
+        return false;
+      }
+      evaluationId = lookup.first['_id']?.toString();
+    }
+    if (evaluationId == null || evaluationId.isEmpty) return false;
+
+    evaluation.id = evaluationId;
+    for (final s in scores) {
+      s.evaluationId = evaluationId;
+    }
 
     // ── POST criteria scores ──
     await _robleDb.insert(

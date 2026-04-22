@@ -40,6 +40,18 @@ import 'features/assessment/domain/repositories/i_evaluation_repository.dart';
 import 'features/assessment/ui/viewmodels/assessment_controller.dart';
 import 'features/assessment/ui/viewmodels/evaluation_controller.dart';
 
+import 'features/analytics/data/datasources/i_analytics_source.dart';
+import 'features/analytics/data/datasources/remote/remote_analytics_source.dart';
+import 'features/analytics/data/repositories/analytics_repository.dart';
+import 'features/analytics/domain/repositories/i_analytics_repository.dart';
+import 'features/analytics/ui/viewmodels/analytics_controller.dart';
+
+import 'features/reflection/data/datasources/i_reflection_source.dart';
+import 'features/reflection/data/datasources/remote/remote_reflection_source.dart';
+import 'features/reflection/data/repositories/reflection_repository.dart';
+import 'features/reflection/domain/repositories/i_reflection_repository.dart';
+import 'features/reflection/ui/viewmodels/reflection_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
@@ -90,6 +102,22 @@ void main() async {
   // Assessment & Evaluation controllers
   Get.put(AssessmentController(Get.find()));
   Get.put(EvaluationController(Get.find()));
+
+  // Analytics (remote — derived aggregates over existing Roble tables)
+  Get.put<IAnalyticsSource>(RemoteAnalyticsSource(robleDb, sessionService));
+  Get.put<IAnalyticsRepository>(
+      AnalyticsRepository(Get.find<IAnalyticsSource>()));
+  Get.lazyPut(() => AnalyticsController(
+        Get.find<IAnalyticsRepository>(),
+        Get.find<ICourseRepository>(),
+      ));
+
+  // Reflection (remote — Roble Reflections table)
+  Get.put<IReflectionSource>(RemoteReflectionSource(robleDb));
+  Get.put<IReflectionRepository>(
+      ReflectionRepository(Get.find<IReflectionSource>()));
+  Get.lazyPut(
+      () => ReflectionController(Get.find<IReflectionRepository>()));
 
   runApp(const MyApp());
 }
