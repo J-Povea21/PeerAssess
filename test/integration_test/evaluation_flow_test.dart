@@ -60,14 +60,15 @@ void main() {
             }));
   }
 
-  /// Stubs all POST (insert) calls → 201 success.
+  /// Stubs all POST (insert) calls → 201 with a generated _id so callers
+  /// that need the server-assigned id (e.g. submitEvaluation) can proceed.
   void stubInserts() {
     when(mockHttp.post(argThat(isAUri),
             headers: anyNamed('headers'),
             body: anyNamed('body'),
             encoding: anyNamed('encoding')))
         .thenAnswer((_) async => http.Response(
-            jsonEncode({'inserted': [], 'skipped': []}), 201));
+            jsonEncode({'inserted': [{'_id': 'generated-001'}], 'skipped': []}), 201));
   }
 
   /// Stubs GET (read) calls dispatching by `tableName` query-param.

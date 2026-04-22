@@ -32,18 +32,21 @@ class _MembersPageState extends State<MembersPage> {
         return const Center(child: CircularProgressIndicator());
       }
 
-      // Collect all members from all categories/groups
-      final allMembers = <GroupMember>[];
-      final seenEmails = <String>{};
+      // 🔥 FIX: evitar duplicados
+      final Map<String, GroupMember> uniqueMembers = {};
+
       for (final category in groupController.categories) {
         for (final group in category.groups) {
           for (final member in group.members) {
-            if (seenEmails.add(member.email)) {
-              allMembers.add(member);
-            }
+            if (member.email.isEmpty) continue;
+
+            final email = member.email.trim().toLowerCase();
+            uniqueMembers[email] = member;
           }
         }
       }
+
+      final allMembers = uniqueMembers.values.toList();
 
       if (allMembers.isEmpty) {
         return Center(

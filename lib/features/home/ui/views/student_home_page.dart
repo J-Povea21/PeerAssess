@@ -1,7 +1,9 @@
 import 'package:f_clean_template/core/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
+import '../../../analytics/ui/views/student_results_page.dart';
 import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../../course/domain/models/course.dart';
 import '../../../course/ui/viewmodels/course_controller.dart';
@@ -28,7 +30,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         children: const [
           _StudentDashboard(),
           CourseListPage(),
-          _ResultsPlaceholder(),
+          StudentResultsPage(),
           ProfilePage(),
         ],
       ),
@@ -173,7 +175,7 @@ class _StudentDashboardState extends State<_StudentDashboard> {
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -187,8 +189,7 @@ class _StudentDashboardState extends State<_StudentDashboard> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildResultCard(),
-                      const SizedBox(height: 20),
+                      _buildNoResultsCard(),
                     ],
                   ),
                 ),
@@ -351,19 +352,10 @@ class _StudentDashboardState extends State<_StudentDashboard> {
     );
   }
 
-  Widget _buildResultCard() {
-    final criteria = [
-      {'name': 'Puntualidad', 'score': 4.5},
-      {'name': 'Contribuciones', 'score': 4.0},
-      {'name': 'Compromiso', 'score': 4.5},
-      {'name': 'Actitud', 'score': 4.2},
-    ];
-    final average =
-        criteria.fold<double>(0, (sum, c) => sum + (c['score'] as double)) /
-            criteria.length;
-
+  Widget _buildNoResultsCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -376,115 +368,33 @@ class _StudentDashboardState extends State<_StudentDashboard> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Sprint 1 - Dev Móvil',
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark)),
-                  SizedBox(height: 2),
-                  Text('Resultado público',
-                      style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(average.toStringAsFixed(1),
-                      style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.olive)),
-                  const Text('/ 5.0',
-                      style:
-                          TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...criteria.map((c) =>
-              _buildCriteriaRow(c['name'] as String, c['score'] as double)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCriteriaRow(String name, double score) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(name,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textMuted)),
-          ),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: score / 5.0,
-                minHeight: 8,
-                backgroundColor: AppColors.beige,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.wheat),
-              ),
+          SvgPicture.asset(
+            'assets/logo.svg',
+            height: 64,
+            colorFilter: ColorFilter.mode(
+              AppColors.textMuted.withValues(alpha: 0.35),
+              BlendMode.srcIn,
             ),
           ),
-          const SizedBox(width: 12),
-          Text(score.toStringAsFixed(1),
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textDark)),
+          const SizedBox(height: 16),
+          const Text(
+            'Sin resultados aún',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Aquí aparecerán tus calificaciones cuando\nse publiquen los resultados',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ResultsPlaceholder extends StatelessWidget {
-  const _ResultsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.beige,
-            Colors.white,
-            AppColors.rose.withValues(alpha: 0.05),
-          ],
-        ),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.bar_chart_outlined,
-                size: 64, color: AppColors.textMuted),
-            SizedBox(height: 16),
-            Text('Resultados',
-                style: TextStyle(fontSize: 18, color: AppColors.textMuted)),
-            SizedBox(height: 8),
-            Text('Próximamente',
-                style: TextStyle(fontSize: 14, color: AppColors.textMuted)),
-          ],
-        ),
-      ),
-    );
-  }
-}
