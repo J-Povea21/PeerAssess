@@ -1,13 +1,9 @@
 # 📌 Proyecto Seleccionado: Peer Assessment App
 
-## 🎯 Decisión del Proyecto
+## 🎯 Resumen del Proyecto
 
 Como equipo, hemos decidido elegir el desarrollo de este **Peer Assessment App** como nuestro proyecto principal. La propuesta base fue tomada de Verónica Ospina, y decidimos adicionar algunos elementos extra tomados de las otras propuestas para hacer un proyecto más robusto.
-Algunos de estos elementos extra serían:
-- Un módulo de Olvidé mi contraseña
-- Capacidad de cambiar entre modo oscuro y claro
-- Pantallas de confirmación tras realizar algún envío o acción importante
-- Entre otros
+Entre las funcionalidades principales está la creación de cursos, la importación de grupos de trabajo por medio de un CSV, la asignación de evaluaciones, y la retroalimentación con analíticas (con vistas por actividad, por estudiante, y por grupo). 
 
 Figma: https://www.figma.com/design/N6kajiJicDVZDNC8lQWPrG/PeerAssess---Prototipo-App-Evaluacion-Colaborativa?node-id=0-1&t=XqA6N9jAGDJbAaz7-1
 
@@ -17,6 +13,15 @@ Fotos:
 ![](https://i.imgur.com/og4khDI.png)
 ![](https://i.imgur.com/mcAe9EG.png)
 ![](https://i.imgur.com/Upcj7CD.png)
+
+
+Videos de demostración:
+1. Demo de gestión académica: https://youtu.be/zvnyz1B5LCM
+2. Demo de evaluación y reportes: https://youtu.be/XBMUnI1a-hU
+3. Pruebas widget: https://youtu.be/poTUsrXJ07A
+4. Pruebas de integración: https://youtu.be/snNXyWDca_8
+5. Implementación de caché: https://youtu.be/ucryIt6Qsyw
+6. Revisión del código: https://youtu.be/ZeJmbkAozxg?si=0I-oneiGoLIZLdKV
 
 ---
 
