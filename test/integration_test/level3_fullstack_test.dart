@@ -163,13 +163,11 @@ void main() {
       expect(find.text('Desarrollo Movil'), findsOneWidget);
       expect(find.text('Ingenieria de Software'), findsOneWidget);
 
-      // Assert: semester + student count labels
-      expect(find.text('2026-1 | 2 estudiantes'), findsOneWidget);
-      expect(find.text('2026-1 | 1 estudiantes'), findsOneWidget);
-
-      // Assert: category tags
-      expect(find.text('1 categorías'), findsOneWidget);
-      expect(find.text('0 categorías'), findsOneWidget);
+      // Assert: combined stats label (semester | students | categories | evaluations)
+      expect(find.text('2026-1 | 2 estudiantes | 1 categorías | 0 evaluaciones'),
+          findsOneWidget);
+      expect(find.text('2026-1 | 1 estudiantes | 0 categorías | 0 evaluaciones'),
+          findsOneWidget);
 
       // ── Verify HTTP calls ──
       // getCoursesByTeacher reads Courses table, then enriches each course
