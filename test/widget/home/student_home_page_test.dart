@@ -1,7 +1,9 @@
+import 'package:f_clean_template/features/analytics/ui/viewmodels/analytics_controller.dart';
 import 'package:f_clean_template/features/auth/ui/viewmodels/auth_controller.dart';
 import 'package:f_clean_template/features/course/ui/viewmodels/course_controller.dart';
 import 'package:f_clean_template/features/group/ui/viewmodels/group_controller.dart';
 import 'package:f_clean_template/features/home/ui/views/student_home_page.dart';
+import 'package:f_clean_template/features/reflection/ui/viewmodels/reflection_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -12,15 +14,21 @@ void main() {
   late MockAuthController mockAuth;
   late MockCourseController mockCourse;
   late MockGroupController mockGroup;
+  late MockAnalyticsController mockAnalytics;
+  late MockReflectionController mockReflection;
 
   setUp(() {
     mockAuth = MockAuthController();
     mockAuth.setUser(mockStudent);
     mockCourse = MockCourseController();
     mockGroup = MockGroupController();
+    mockAnalytics = MockAnalyticsController();
+    mockReflection = MockReflectionController();
     Get.put<AuthController>(mockAuth);
     Get.put<CourseController>(mockCourse);
     Get.put<GroupController>(mockGroup);
+    Get.put<AnalyticsController>(mockAnalytics);
+    Get.put<ReflectionController>(mockReflection);
   });
 
   tearDown(() => Get.reset());

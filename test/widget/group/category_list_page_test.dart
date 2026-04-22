@@ -1,3 +1,4 @@
+import 'package:f_clean_template/features/auth/ui/viewmodels/auth_controller.dart';
 import 'package:f_clean_template/features/group/ui/viewmodels/group_controller.dart';
 import 'package:f_clean_template/features/group/ui/views/category_list_page.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,14 @@ import 'package:get/get.dart';
 import '../../helpers/test_helpers.dart';
 
 void main() {
+  late MockAuthController mockAuth;
   late MockGroupController mockGroup;
 
   setUp(() {
+    mockAuth = MockAuthController();
+    mockAuth.setUser(mockTeacher);
     mockGroup = MockGroupController();
+    Get.put<AuthController>(mockAuth);
     Get.put<GroupController>(mockGroup);
   });
 

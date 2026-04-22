@@ -62,8 +62,12 @@ void main() {
       await tester.pumpWidget(pumpApp(const CourseListPage()));
       await tester.pump();
 
-      expect(find.text('2026-1 | 25 estudiantes'), findsOneWidget);
-      expect(find.text('2026-1 | 30 estudiantes'), findsOneWidget);
+      expect(
+          find.text('2026-1 | 25 estudiantes | 2 categorías | 1 evaluaciones'),
+          findsOneWidget);
+      expect(
+          find.text('2026-1 | 30 estudiantes | 1 categorías | 0 evaluaciones'),
+          findsOneWidget);
     });
   });
 

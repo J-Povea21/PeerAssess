@@ -1,3 +1,4 @@
+import 'package:f_clean_template/features/analytics/ui/viewmodels/analytics_controller.dart';
 import 'package:f_clean_template/features/auth/ui/viewmodels/auth_controller.dart';
 import 'package:f_clean_template/features/course/ui/viewmodels/course_controller.dart';
 import 'package:f_clean_template/features/group/ui/viewmodels/group_controller.dart';
@@ -12,15 +13,18 @@ void main() {
   late MockAuthController mockAuth;
   late MockCourseController mockCourse;
   late MockGroupController mockGroup;
+  late MockAnalyticsController mockAnalytics;
 
   setUp(() {
     mockAuth = MockAuthController();
     mockAuth.setUser(mockTeacher);
     mockCourse = MockCourseController();
     mockGroup = MockGroupController();
+    mockAnalytics = MockAnalyticsController();
     Get.put<AuthController>(mockAuth);
     Get.put<CourseController>(mockCourse);
     Get.put<GroupController>(mockGroup);
+    Get.put<AnalyticsController>(mockAnalytics);
   });
 
   tearDown(() => Get.reset());

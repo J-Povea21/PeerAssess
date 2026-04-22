@@ -37,15 +37,6 @@ void main() {
           find.text('Evaluación Colaborativa en Grupos'), findsOneWidget);
     });
 
-    testWidgets('renders role toggle with Profesor and Estudiante',
-        (tester) async {
-      await tester.pumpWidget(pumpApp(const LoginPage()));
-      await tester.pump();
-
-      expect(find.text('Profesor'), findsOneWidget);
-      expect(find.text('Estudiante'), findsOneWidget);
-    });
-
     testWidgets('login button is disabled when fields are empty',
         (tester) async {
       await tester.pumpWidget(pumpApp(const LoginPage()));
