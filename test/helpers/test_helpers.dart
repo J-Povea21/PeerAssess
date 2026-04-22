@@ -11,10 +11,15 @@ import 'package:get/get.dart';
 // Barrel export — import this single file in every test
 // ---------------------------------------------------------------------------
 
+export 'fake_cache_service.dart';
+export 'mock_analytics_controller.dart';
+export 'mock_assessment_controller.dart';
 export 'mock_auth_controller.dart';
 export 'mock_course_controller.dart';
+export 'mock_evaluation_controller.dart';
 export 'mock_group_controller.dart';
 export 'mock_http_client.dart';
+export 'mock_reflection_controller.dart';
 
 
 /// Matches any [Uri] instance — useful with `argThat(isAUri)` in mockito stubs.

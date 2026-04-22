@@ -29,8 +29,15 @@ class RemoteAssessmentSource with UiLoggy implements IAssessmentSource {
 
     loggy.info('RemoteAssessmentSource: creating "${assessment.title}"');
 
-    await _robleDb.insert('Assessments', [assessment.toJsonNoId()]);
+    final result = await _robleDb.insert('Assessments', [assessment.toJsonNoId()]);
+    final inserted = (result['inserted'] as List?)?.cast<Map<String, dynamic>>();
+    if (inserted == null || inserted.isEmpty) return false;
+    final assessmentId = inserted.first['_id']?.toString();
+    if (assessmentId == null) return false;
 
+    for (final c in criteria) {
+      c.assessmentId = assessmentId;
+    }
     await _robleDb
         .insert('Criteria', criteria.map((c) => c.toJsonNoId()).toList());
 

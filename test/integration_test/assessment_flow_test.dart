@@ -41,13 +41,25 @@ void main() {
   }
 
   /// Stubs all POST (insert) calls → 201 success.
+  /// Returns a synthetic `_id` in the inserted list so that
+  /// `createAssessment` can extract the assessment ID for criteria.
   void stubInserts() {
+    var callCount = 0;
     when(mockHttp.post(argThat(isAUri),
             headers: anyNamed('headers'),
             body: anyNamed('body'),
             encoding: anyNamed('encoding')))
-        .thenAnswer((_) async => http.Response(
-            jsonEncode({'inserted': [], 'skipped': []}), 201));
+        .thenAnswer((_) async {
+      callCount++;
+      return http.Response(
+          jsonEncode({
+            'inserted': [
+              {'_id': 'generated-id-$callCount'}
+            ],
+            'skipped': []
+          }),
+          201);
+    });
   }
 
   /// Stubs GET (read) calls dispatching by `tableName` query-param.

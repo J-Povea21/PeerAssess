@@ -78,8 +78,6 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.textMuted,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  _buildRoleToggle(),
                   const SizedBox(height: 32),
                   _buildEmailField(),
                   const SizedBox(height: 20),
@@ -116,48 +114,6 @@ class _LoginPageState extends State<LoginPage> {
           'assets/logo.svg',
           width: 60,
           height: 60,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleToggle() {
-    return Obx(() => Container(
-          decoration: BoxDecoration(
-            color: AppColors.beige.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.all(4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildToggleOption('Profesor', controller.isTeacherSelected.value),
-              _buildToggleOption(
-                  'Estudiante', !controller.isTeacherSelected.value),
-            ],
-          ),
-        ));
-  }
-
-  Widget _buildToggleOption(String label, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        controller.isTeacherSelected.value = label == 'Profesor';
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.olive : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textMuted,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 14,
-          ),
         ),
       ),
     );
