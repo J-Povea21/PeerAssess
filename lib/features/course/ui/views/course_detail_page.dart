@@ -1,3 +1,4 @@
+import '../../../auth/ui/viewmodels/auth_controller.dart';
 import 'package:f_clean_template/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
