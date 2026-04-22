@@ -158,7 +158,7 @@ class CourseListPage extends StatelessWidget {
 
               const SizedBox(height: 6),
 
-              // 🔥 TEXTO CORREGIDO
+             
               Text(
                 '${course.semester} | ${course.studentCount} estudiantes | ${course.categoryCount} categorías | ${course.evaluationCount} evaluaciones',
                 style: const TextStyle(
