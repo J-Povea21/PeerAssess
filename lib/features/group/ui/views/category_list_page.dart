@@ -1,7 +1,9 @@
 import 'package:f_clean_template/core/app_colors.dart';
+import 'package:f_clean_template/core/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../auth/ui/viewmodels/auth_controller.dart';
 import '../../domain/models/group_category.dart';
 import '../viewmodels/group_controller.dart';
 import 'group_list_page.dart';
@@ -28,6 +30,8 @@ class _CategoryListPageState extends State<CategoryListPage> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<GroupController>();
+    final isTeacher =
+        Get.find<AuthController>().currentRole == UserRole.teacher;
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -48,31 +52,36 @@ class _CategoryListPageState extends State<CategoryListPage> {
                 style: TextStyle(fontSize: 16, color: AppColors.textMuted),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Importa un archivo CSV para crear categorías',
-                style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              Text(
+                isTeacher
+                    ? 'Importa un archivo CSV para crear categorías'
+                    : 'El profesor aún no ha creado categorías',
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.textMuted),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final result = await Get.to(
-                      () => ImportCsvPage(courseId: widget.courseId));
-                  if (result == true) {
-                    controller.loadCategories(widget.courseId);
-                  }
-                },
-                icon: const Icon(Icons.upload_file),
-                label: const Text('Importar CSV'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.olive,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              if (isTeacher) ...[
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Get.to(
+                        () => ImportCsvPage(courseId: widget.courseId));
+                    if (result == true) {
+                      controller.loadCategories(widget.courseId);
+                    }
+                  },
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Importar CSV'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.olive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
                 ),
-              ),
+              ],
             ],
           ),
         );
@@ -90,24 +99,25 @@ class _CategoryListPageState extends State<CategoryListPage> {
               );
             },
           ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton.extended(
-              heroTag: 'category_import_fab',
-              onPressed: () async {
-                final result = await Get.to(
-                    () => ImportCsvPage(courseId: widget.courseId));
-                if (result == true) {
-                  controller.loadCategories(widget.courseId);
-                }
-              },
-              backgroundColor: AppColors.olive,
-              icon: const Icon(Icons.upload_file, color: Colors.white),
-              label: const Text('Importar CSV',
-                  style: TextStyle(color: Colors.white)),
+          if (isTeacher)
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: FloatingActionButton.extended(
+                heroTag: 'category_import_fab',
+                onPressed: () async {
+                  final result = await Get.to(
+                      () => ImportCsvPage(courseId: widget.courseId));
+                  if (result == true) {
+                    controller.loadCategories(widget.courseId);
+                  }
+                },
+                backgroundColor: AppColors.olive,
+                icon: const Icon(Icons.upload_file, color: Colors.white),
+                label: const Text('Importar CSV',
+                    style: TextStyle(color: Colors.white)),
+              ),
             ),
-          ),
         ],
       );
     });
