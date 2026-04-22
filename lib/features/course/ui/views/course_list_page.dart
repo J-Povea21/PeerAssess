@@ -168,7 +168,32 @@ class CourseListPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
-
+if (!isTeacher && course.evaluationCount > 0)
+  Container(
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.orange.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.warning_amber_rounded,
+            size: 16, color: Colors.orange),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'Tienes ${course.evaluationCount} evaluaciones pendientes',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.orange,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
               Row(
                 children: [
                   _buildTag(
@@ -207,4 +232,4 @@ class CourseListPage extends StatelessWidget {
       ),
     );
   }
-}
+} 
